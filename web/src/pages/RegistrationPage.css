@@ -1,0 +1,55 @@
+.role-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.role-label {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.role-buttons {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  transition: all 0.2s;
+}
+
+.role-btn.active {
+  background-color: #b0adaa; /* Darker gray for selected state like in mockup */
+  border-color: #8c8986;
+}
+
+.upload-section {
+  margin-top: 24px;
+}
+
+.upload-icon-container {
+  margin-top: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.upload-icon-container:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.upload-icon {
+  color: var(--text-primary);
+}
