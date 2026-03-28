@@ -18,9 +18,18 @@ public class DatabaseCleanupConfig {
                 System.out.println("Cleaned up accidental duplicate columns in users table.");
 
                 // Seed roles if not present
-                jdbcTemplate.execute("INSERT INTO roles (id, role_name) VALUES (1, 'SME') ON CONFLICT (id) DO NOTHING;");
-                jdbcTemplate.execute("INSERT INTO roles (id, role_name) VALUES (2, 'CONSUMER') ON CONFLICT (id) DO NOTHING;");
-                jdbcTemplate.execute("INSERT INTO roles (id, role_name) VALUES (3, 'ADMIN') ON CONFLICT (id) DO NOTHING;");
+                try {
+                    jdbcTemplate.execute("INSERT INTO roles (id, role_name) VALUES (1, 'SME')");
+                } catch (Exception e) {}
+                
+                try {
+                    jdbcTemplate.execute("INSERT INTO roles (id, role_name) VALUES (2, 'CONSUMER')");
+                } catch (Exception e) {}
+                
+                try {
+                    jdbcTemplate.execute("INSERT INTO roles (id, role_name) VALUES (3, 'ADMIN')");
+                } catch (Exception e) {}
+                
                 System.out.println("Seeded roles table.");
             } catch (Exception e) {
                 System.out.println("Could not drop columns: " + e.getMessage());
