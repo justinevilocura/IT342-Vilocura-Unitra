@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="primary_black">#1a1a1a</color>
+    <color name="accent_brown">#a99c99</color>
+    <color name="accent_hover">#968681</color>
+    <color name="text_secondary">#4a4a4a</color>
+    <color name="border_color">#d1d1d1</color>
+    <color name="status_success">#2e7d32</color>
+    <color name="status_error">#d32f2f</color>
+</resources>

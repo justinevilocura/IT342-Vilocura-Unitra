@@ -37,13 +37,12 @@ const LoginPage = () => {
         body: params.toString()
       });
 
+      const responseText = await response.text();
+
       if (response.ok) {
-        const data = await response.json();
-        setStatusMsg({ type: 'success', text: data.message });
-        localStorage.setItem('userId', data.userId); // SECURELY SAVE THE ACTUAL USER ID!
+        setStatusMsg({ type: 'success', text: responseText });
         setTimeout(() => navigate('/dashboard'), 2000);
       } else {
-        const responseText = await response.text();
         setStatusMsg({ type: 'error', text: responseText || 'Invalid credentials' });
       }
     } catch (err) {

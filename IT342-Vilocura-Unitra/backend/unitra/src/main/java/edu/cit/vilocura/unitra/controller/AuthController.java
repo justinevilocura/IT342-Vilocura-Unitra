@@ -30,13 +30,10 @@ public class AuthController {
 
     // User Login
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<String> loginUser(@RequestParam String email, @RequestParam String password) {
         try {
             User user = userService.loginUser(email, password);
-            java.util.Map<String, Object> response = new java.util.HashMap<>();
-            response.put("message", "Login successful. Welcome " + user.getName());
-            response.put("userId", user.getId());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok("Login successful. Welcome " + user.getName());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid email or password");
         }
