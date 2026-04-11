@@ -15,6 +15,12 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!formData.email.endsWith('@cit.edu')) {
+      setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email.' });
+      return;
+    }
+
     setIsLoading(true);
     setStatusMsg({ type: '', text: '' });
 

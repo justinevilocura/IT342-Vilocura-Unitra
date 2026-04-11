@@ -14,6 +14,13 @@ const RegistrationPage = () => {
   });
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,6 +28,17 @@ const RegistrationPage = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (!formData.email.endsWith('@cit.edu')) {
+      setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email to register.' });
+      return;
+    }
+
+    if (role === 'SME' && !file) {
+      setStatusMsg({ type: 'error', text: 'Entrepreneurs must upload a valid School ID for verification.' });
+      return;
+    }
+
     setIsLoading(true);
     setStatusMsg({ type: '', text: '' });
 
@@ -42,6 +60,7 @@ const RegistrationPage = () => {
 
       if (response.ok) {
         setStatusMsg({ type: 'success', text: responseText });
+        localStorage.setItem('userRole', role); // Save the chosen role to local storage so the dashboard knows!
         setTimeout(() => navigate('/login'), 2000);
       } else {
         setStatusMsg({ type: 'error', text: responseText || 'Registration failed' });
@@ -137,10 +156,19 @@ const RegistrationPage = () => {
           {role === 'SME' && (
             <div className="upload-section">
               <span className="upload-text">Upload School ID for verification (B2B)</span>
-              <div className="upload-dropzone">
+              <label className="upload-dropzone" htmlFor="school-id-upload">
                  <UploadCloud size={24} className="upload-icon-cloud" />
-                 <span>Click to upload or drag and drop</span>
-              </div>
+                 <span style={{ textAlign: 'center' }}>
+                   {file ? file.name : "Click to upload or drag and drop"}
+                 </span>
+                 <input 
+                   type="file" 
+                   id="school-id-upload" 
+                   style={{ display: 'none' }} 
+                   onChange={handleFileChange}
+                   accept="image/*,.pdf"
+                 />
+              </label>
             </div>
           )}
 

@@ -42,6 +42,9 @@ const mockItems = [
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('All');
+  
+  // Retrieve role from LocalStorage (we will save this during registration)
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'SME'); 
 
   const handleLogout = () => {
     // In a real app, you'd clear specific tokens/context here
@@ -82,7 +85,13 @@ const Dashboard = () => {
              <h1>Marketplace</h1>
              <p className="subtitle">Buy, sell, or swap equipment and services</p>
            </div>
-           <button className="btn-outline">Add Listing</button>
+           
+           <div style={{display: 'flex', gap: '16px', alignItems: 'center'}}>
+             {/* The Actual Conditional Render */}
+             {userRole === 'SME' && (
+               <button className="btn-outline">Add Listing</button>
+             )}
+           </div>
         </header>
 
         {/* Filters and Search Bar Glass Panel */}
