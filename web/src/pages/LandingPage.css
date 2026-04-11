@@ -1,41 +1,97 @@
 .landing-page {
+  position: relative;
   min-height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* Background animated mesh gradients */
+.mesh-gradient {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: -1;
+  opacity: 0.5;
+  animation: pulseGlow 10s infinite alternate;
+}
+
+.mesh-1 {
+  width: 600px;
+  height: 600px;
+  background: var(--mesh-1);
+  top: -200px;
+  right: -100px;
+  animation-delay: 0s;
+}
+
+.mesh-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--mesh-2);
+  bottom: -200px;
+  left: -200px;
+  animation-delay: 2s;
+}
+
+.mesh-3 {
+  width: 400px;
+  height: 400px;
+  background: var(--mesh-3);
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 4s;
 }
 
 .hero-section {
   flex: 1;
   max-width: 1200px;
-  width: 100%;
   margin: 0 auto;
-  padding: 80px 40px;
-  display: flex;
+  padding: 160px 40px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
   align-items: center;
-  gap: 80px;
 }
 
 .hero-content {
-  flex: 1;
+  animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .pill-badge {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 24px;
 }
 
+.sparkle-icon {
+  color: #FBBF24;
+}
+
+.text-gradient {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h1 {
+  margin-bottom: 24px;
+}
+
 .hero-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.125rem;
   color: var(--text-secondary);
-  line-height: 1.6;
-  margin-top: 24px;
   margin-bottom: 40px;
-  max-width: 90%;
+  max-width: 480px;
 }
 
 .hero-actions {
@@ -43,36 +99,124 @@
   gap: 16px;
 }
 
-.btn-icon {
+/* Beautiful Animated Hero Visual */
+.hero-visual {
+  position: relative;
+  height: 500px;
+  animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  opacity: 0;
+}
+
+.visual-card {
+  background: var(--surface-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  position: absolute;
+  box-shadow: 0 24px 40px rgba(0,0,0,0.4);
+}
+
+.main-card {
+  width: 100%;
+  height: 400px;
+  top: 50px;
+  right: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.dot.red { background: #FF5F56; }
+.dot.yellow { background: #FFBD2E; }
+.dot.green { background: #27C93F; }
+
+.mock-skeleton {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+.mock-skeleton.title { height: 24px; width: 60%; }
+.mock-skeleton.line { height: 12px; width: 100%; }
+.mock-skeleton.short { height: 12px; width: 80%; }
+
+.mock-analytics {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 120px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 10px;
+}
+
+.bar {
+  flex: 1;
+  background: var(--brand-gradient);
+  border-radius: 4px 4px 0 0;
+  opacity: 0.8;
+}
+.b1 { height: 40%; }
+.b2 { height: 60%; }
+.b3 { height: 30%; }
+.b4 { height: 80%; }
+.b5 { height: 50%; }
+
+.floating-card-1 {
+  bottom: 20px;
+  left: -40px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
+  animation: pulseGlow 4s infinite alternate ease-in-out;
 }
 
-.hero-image-placeholder {
-  flex: 1;
-  aspect-ratio: 16/10;
-  border: 1px solid var(--border-color);
-  position: relative;
+.icon-circle {
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
   display: flex;
+  align-items: center;
   justify-content: center;
-  background-color: transparent;
+  font-size: 1.2rem;
 }
 
-.hero-image-placeholder::before {
-  content: 'img';
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.small-bold {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.small-text {
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  font-size: 1rem;
 }
 
-.wireframe-cross {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+@media (max-width: 992px) {
+  .hero-section {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding-top: 120px;
+  }
+  .pill-badge { margin: 0 auto 24px; }
+  .hero-subtitle { margin: 0 auto 40px; }
+  .hero-actions { justify-content: center; }
+  .hero-visual { display: none; }
 }

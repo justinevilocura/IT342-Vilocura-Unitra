@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import './AuthLayout.css';
 
 const LoginPage = () => {
@@ -19,7 +19,6 @@ const LoginPage = () => {
     setStatusMsg({ type: '', text: '' });
 
     try {
-      // The backend @PostMapping("/login") takes @RequestParam for email and password
       const params = new URLSearchParams();
       params.append('email', formData.email);
       params.append('password', formData.password);
@@ -36,7 +35,6 @@ const LoginPage = () => {
 
       if (response.ok) {
         setStatusMsg({ type: 'success', text: responseText });
-        // Typically you'd store the token/session and redirect to dashboard, here we just show success
         setTimeout(() => navigate('/'), 2000);
       } else {
         setStatusMsg({ type: 'error', text: responseText || 'Invalid credentials' });
@@ -50,73 +48,60 @@ const LoginPage = () => {
 
   return (
     <div className="auth-layout">
-      {/* Left Pane */}
-      <div className="auth-left">
-        <div className="auth-brand">
-           {/* Empty spacer or logo if needed */}
-        </div>
-        <div className="auth-left-content">
-          <h1>Welcome back to Unitra</h1>
-          <p>
-            Log in to access your network, manage resources, and connect with SME partners.
-          </p>
-        </div>
-      </div>
-
-      {/* Right Pane */}
-      <div className="auth-right">
-        <div className="auth-right-container">
-          <Link to="/" className="back-link">
-            <ArrowLeft size={16} /> Back to home
-          </Link>
-          
-          <div className="auth-form-container">
-            <h2>Log in</h2>
-            <p className="auth-subtitle">Enter your credentials to access your account.</p>
-
-            {statusMsg.text && (
-              <div className={`status-message ${statusMsg.type}`}>
-                {statusMsg.text}
-              </div>
-            )}
-
-            <form className="auth-form" onSubmit={handleLogin}>
-              <label className="form-label">
-                Institutional Email
-                <input 
-                  type="email" 
-                  name="email"
-                  className="input-field" 
-                  placeholder="johndoe@cit.edu" 
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <label className="form-label">
-                Password
-                <input 
-                  type="password" 
-                  name="password"
-                  className="input-field" 
-                  placeholder="••••••••••" 
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <button type="submit" className="btn-accent" style={{ marginTop: '32px' }} disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'LOGIN'}
-              </button>
-            </form>
-
-            <p className="auth-footer">
-              Don't have an account? <Link to="/register">Sign Up</Link>
-            </p>
+      <div className="auth-card">
+        <Link to="/" className="back-link">
+          <ArrowLeft size={16} /> Back to Home
+        </Link>
+        
+        <div className="auth-header">
+          <div className="logo-text">
+             <Sparkles size={20} style={{ color: "var(--mesh-3)" }} /> Unitra
           </div>
+          <h2>Welcome Back</h2>
+          <p className="auth-subtitle">Log in to manage your network and resources.</p>
         </div>
+
+        {statusMsg.text && (
+          <div className={`status-message ${statusMsg.type}`}>
+            {statusMsg.text}
+          </div>
+        )}
+
+        <form className="auth-form" onSubmit={handleLogin}>
+          <label className="form-label">
+            Institutional Email
+            <input 
+              type="email" 
+              name="email"
+              className="input-field" 
+              placeholder="johndoe@cit.edu" 
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label className="form-label">
+            Password
+            <input 
+              type="password" 
+              name="password"
+              className="input-field" 
+              placeholder="••••••••••" 
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <button type="submit" className="btn-primary block" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Sign In'}
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Don't have an account? <Link to="/register">Create one</Link>
+        </p>
       </div>
     </div>
   );

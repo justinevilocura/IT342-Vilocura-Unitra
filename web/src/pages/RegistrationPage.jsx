@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Sparkles, UploadCloud } from 'lucide-react';
 import './AuthLayout.css';
 import './RegistrationPage.css';
 
@@ -42,7 +42,6 @@ const RegistrationPage = () => {
 
       if (response.ok) {
         setStatusMsg({ type: 'success', text: responseText });
-        // Optionally navigate to login after a short delay
         setTimeout(() => navigate('/login'), 2000);
       } else {
         setStatusMsg({ type: 'error', text: responseText || 'Registration failed' });
@@ -56,114 +55,103 @@ const RegistrationPage = () => {
 
   return (
     <div className="auth-layout">
-      {/* Left Pane */}
-      <div className="auth-left">
-        <div className="auth-brand">
-        </div>
-        <div className="auth-left-content">
-          <h1>Join the Unitra Network</h1>
-          <p>
-            Create your account and start collaborating with SMEs to share resources and grow together.
-          </p>
-        </div>
-      </div>
-
-      {/* Right Pane */}
-      <div className="auth-right">
-        <div className="auth-right-container">
-          <Link to="/" className="back-link">
-            <ArrowLeft size={16} /> Back to home
-          </Link>
-          
-          <div className="auth-form-container" style={{ margin: 'auto 0' }}>
-            <h2>Create Account</h2>
-            <p className="auth-subtitle">Start your free trial — no credit card required.</p>
-
-            {statusMsg.text && (
-              <div className={`status-message ${statusMsg.type}`}>
-                {statusMsg.text}
-              </div>
-            )}
-
-            <form className="auth-form" onSubmit={handleRegister}>
-              <label className="form-label">
-                Full Name
-                <input 
-                  type="text" 
-                  name="name"
-                  className="input-field" 
-                  placeholder="John Doe" 
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <label className="form-label">
-                Institutional Email
-                <input 
-                  type="email" 
-                  name="email"
-                  className="input-field" 
-                  placeholder="johndoe@cit.edu" 
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <label className="form-label">
-                Password
-                <input 
-                  type="password" 
-                  name="password"
-                  className="input-field" 
-                  placeholder="••••••••••" 
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <div className="role-selector">
-                <span className="role-label">I want to be a</span>
-                <div className="role-buttons">
-                  <button 
-                    type="button" 
-                    className={`role-btn ${role === 'SME' ? 'active' : ''}`}
-                    onClick={() => setRole('SME')}
-                  >
-                    Student<br/>Entrepreneur
-                  </button>
-                  <button 
-                    type="button" 
-                    className={`role-btn ${role === 'CONSUMER' ? 'active' : ''}`}
-                    onClick={() => setRole('CONSUMER')}
-                  >
-                    Consumer
-                  </button>
-                </div>
-              </div>
-
-              {role === 'SME' && (
-                <div className="upload-section">
-                  <span className="form-label">Upload School ID for verification(b2b)</span>
-                  <div className="upload-icon-container">
-                    <Download size={20} className="upload-icon" />
-                  </div>
-                </div>
-              )}
-
-              <button type="submit" className="btn-accent" style={{ marginTop: '32px' }} disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create Account'}
-              </button>
-            </form>
-
-            <p className="auth-footer">
-              Already have an account? <Link to="/login">Login</Link>
-            </p>
+      <div className="auth-card reg-card">
+        <Link to="/" className="back-link">
+          <ArrowLeft size={16} /> Back to Home
+        </Link>
+        
+        <div className="auth-header">
+          <div className="logo-text">
+             <Sparkles size={20} style={{ color: "var(--mesh-2)" }} /> Unitra
           </div>
+          <h2>Create Account</h2>
+          <p className="auth-subtitle">Join the network to collaborate and grow together.</p>
         </div>
+
+        {statusMsg.text && (
+          <div className={`status-message ${statusMsg.type}`}>
+            {statusMsg.text}
+          </div>
+        )}
+
+        <form className="auth-form" onSubmit={handleRegister}>
+          <label className="form-label">
+            Full Name
+            <input 
+              type="text" 
+              name="name"
+              className="input-field" 
+              placeholder="John Doe" 
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label className="form-label">
+            Institutional Email
+            <input 
+              type="email" 
+              name="email"
+              className="input-field" 
+              placeholder="johndoe@cit.edu" 
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label className="form-label">
+            Password
+            <input 
+              type="password" 
+              name="password"
+              className="input-field" 
+              placeholder="••••••••••" 
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <div className="role-selector-wrapper">
+             <span className="role-label">I want to be a...</span>
+             <div className="role-toggle">
+               <button 
+                 type="button" 
+                 className={`toggle-btn ${role === 'SME' ? 'active' : ''}`}
+                 onClick={() => setRole('SME')}
+               >
+                 Entrepreneur
+               </button>
+               <button 
+                 type="button" 
+                 className={`toggle-btn ${role === 'CONSUMER' ? 'active' : ''}`}
+                 onClick={() => setRole('CONSUMER')}
+               >
+                 Consumer
+               </button>
+             </div>
+          </div>
+
+          {role === 'SME' && (
+            <div className="upload-section">
+              <span className="upload-text">Upload School ID for verification (B2B)</span>
+              <div className="upload-dropzone">
+                 <UploadCloud size={24} className="upload-icon-cloud" />
+                 <span>Click to upload or drag and drop</span>
+              </div>
+            </div>
+          )}
+
+          <button type="submit" className="btn-primary block" disabled={isLoading}>
+            {isLoading ? 'Creating...' : 'Create Account'}
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Sign In</Link>
+        </p>
       </div>
     </div>
   );
