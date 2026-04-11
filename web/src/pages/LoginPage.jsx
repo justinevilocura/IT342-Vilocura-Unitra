@@ -35,7 +35,7 @@ const LoginPage = () => {
 
       if (response.ok) {
         setStatusMsg({ type: 'success', text: responseText });
-        setTimeout(() => navigate('/'), 2000);
+        setTimeout(() => navigate('/dashboard'), 2000);
       } else {
         setStatusMsg({ type: 'error', text: responseText || 'Invalid credentials' });
       }
