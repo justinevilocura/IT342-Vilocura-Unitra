@@ -9,9 +9,9 @@ const Navbar = () => {
           Unitra
         </Link>
         <div className="navbar-links">
-          <Link to="#features" className="nav-link">Features</Link>
-          <Link to="#how-it-works" className="nav-link">How it Works</Link>
-          <Link to="#about-us" className="nav-link">About Us</Link>
+          <a href="/#features" className="nav-link">Features</a>
+          <a href="/#how-it-works" className="nav-link">How it Works</a>
+          <a href="/#about-us" className="nav-link">About Us</a>
         </div>
         <div className="navbar-auth">
           <Link to="/login" className="nav-link nav-login">Login</Link>

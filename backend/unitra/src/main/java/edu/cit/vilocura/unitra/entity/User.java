@@ -24,6 +24,9 @@ public class User {
     @Column(name = "password_hash")
     private String password;
 
+    @Column(name = "status", nullable = false)
+    private String status = "PENDING";
+
     @Transient
     private Role role;
 
@@ -55,6 +58,14 @@ public class User {
     }
 
     // Other getters and setters
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Long getId() {
         return id;
     }

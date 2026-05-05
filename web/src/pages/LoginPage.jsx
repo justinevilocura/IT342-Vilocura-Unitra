@@ -59,10 +59,10 @@ const LoginPage = () => {
         <Link to="/" className="back-link">
           <ArrowLeft size={16} /> Back to Home
         </Link>
-        
+
         <div className="auth-header">
           <div className="logo-text">
-             <Sparkles size={20} style={{ color: "var(--mesh-3)" }} /> Unitra
+            <Sparkles size={20} style={{ color: "var(--mesh-3)" }} /> Unitra
           </div>
           <h2>Welcome Back</h2>
           <p className="auth-subtitle">Log in to manage your network and resources.</p>
@@ -77,11 +77,11 @@ const LoginPage = () => {
         <form className="auth-form" onSubmit={handleLogin}>
           <label className="form-label">
             Institutional Email
-            <input 
-              type="email" 
+            <input
+              type="email"
               name="email"
-              className="input-field" 
-              placeholder="johndoe@cit.edu" 
+              className="input-field"
+              placeholder="johndoe@cit.edu"
               value={formData.email}
               onChange={handleChange}
               required
@@ -90,11 +90,11 @@ const LoginPage = () => {
 
           <label className="form-label">
             Password
-            <input 
-              type="password" 
+            <input
+              type="password"
               name="password"
-              className="input-field" 
-              placeholder="••••••••••" 
+              className="input-field"
+              placeholder="••••••••••"
               value={formData.password}
               onChange={handleChange}
               required

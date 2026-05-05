@@ -49,4 +49,17 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email or password");
         }
     }
+
+    public java.util.List<User> getPendingSmes() {
+        return userRepository.findByRoleIdAndStatus(1L, "PENDING");
+    }
+
+    @Transactional
+    public User updateUserStatus(Long userId, String status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        
+        user.setStatus(status);
+        return userRepository.save(user);
+    }
 }
