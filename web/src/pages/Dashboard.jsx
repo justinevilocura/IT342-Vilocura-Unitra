@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogOut, MapPin, Calendar, CheckCircle2, ChevronDown, Plus, X, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, User, LogOut, MapPin, Calendar, CheckCircle2, ChevronDown, Plus, X, Upload, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -16,7 +16,77 @@ const Dashboard = () => {
   const [roleId, setRoleId] = useState(parseInt(localStorage.getItem('roleId')) || 1);
 
   // Modal State
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [bookingItem, setBookingItem] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  const openBooking = (item) => {
+    setBookingItem(item);
+    setIsBookingOpen(true);
+    setIsDetailsOpen(false);
+    setCurrentMonth(new Date());
+    setStartDate(null);
+    setEndDate(null);
+  };
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  const openDetails = (item) => {
+    setSelectedItem(item);
+    setIsDetailsOpen(true);
+  };
+
+  const changeMonth = (offset) => {
+    const newMonth = new Date(currentMonth.setMonth(currentMonth.getMonth() + offset));
+    setCurrentMonth(new Date(newMonth));
+  };
+
+  const handleDateClick = (day) => {
+    const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    if (!startDate || (startDate && endDate)) {
+      setStartDate(clickedDate);
+      setEndDate(null);
+    } else if (clickedDate > startDate) {
+      setEndDate(clickedDate);
+    } else {
+      setStartDate(clickedDate);
+    }
+  };
+
+  const renderCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const days = [];
+
+    // Correct first day offset (Monday start)
+    const offset = firstDay === 0 ? 6 : firstDay - 1;
+
+    for (let i = 0; i < offset; i++) {
+      days.push(<div key={`empty-${i}`} className="day empty"></div>);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      let className = "day";
+      if (startDate && date.toDateString() === startDate.toDateString()) className += " selected";
+      if (endDate && date.toDateString() === endDate.toDateString()) className += " selected";
+      if (startDate && endDate && date > startDate && date < endDate) className += " in-range";
+
+      days.push(
+        <div key={d} className={className} onClick={() => handleDateClick(d)}>
+          {d}
+        </div>
+      );
+    }
+    return days;
+  };
   const [modalError, setModalError] = useState('');
   const [formData, setFormData] = useState({
     listingType: 'For Sale',
@@ -181,7 +251,7 @@ const Dashboard = () => {
 
                 <h3 className="item-title">{item.title}</h3>
                 <div className="seller-info">
-                  <CheckCircle2 size={14} className="verified-icon" /> {item.companyName || item.name || `User ID ${item.userId}`}
+                  <CheckCircle2 size={14} className="verified-icon" /> Seller
                 </div>
 
                 <p className="item-desc">
@@ -214,8 +284,8 @@ const Dashboard = () => {
               </div>
 
               <div className="card-actions">
-                <button className="btn-outline outline-sm">View Details</button>
-                <button className="btn-primary btn-sm">Book Now</button>
+                <button className="btn-outline outline-sm" onClick={() => openDetails(item)}>View Details</button>
+                <button className="btn-primary btn-sm" onClick={() => openBooking(item)}>Book Now</button>
               </div>
             </div>
           ))}
@@ -257,10 +327,128 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* View Details Modal */}
+        {isDetailsOpen && selectedItem && (
+          <div className="modal-overlay centered-overlay" onClick={() => setIsDetailsOpen(false)}>
+            <div className="modal-content details-modal" onClick={e => e.stopPropagation()}>
+              <div className="details-header">
+                <h2 className="details-title">{selectedItem.title}</h2>
+                <button className="details-close-btn" onClick={() => setIsDetailsOpen(false)}><X size={20} /></button>
+              </div>
+              <div className="details-body">
+              
+              <div className="details-tags">
+                <span className={`tag tag-${(selectedItem.listingType || '').toLowerCase().replace(' ', '-')}`}>
+                  {selectedItem.listingType}
+                </span>
+                <span className="tag-available">Available</span>
+                <span className="tag-category-outline">{selectedItem.category}</span>
+              </div>
+
+              <div className="details-meta-list">
+                <div className="meta-info-item"><Star size={16} /> Seller</div>
+                <div className="meta-info-item"><MapPin size={16} /> {selectedItem.location}</div>
+                <div className="meta-info-item"><Calendar size={16} /> Posted {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleDateString() : 'Just now'}</div>
+              </div>
+
+              <div className="details-divider"></div>
+
+              <div className="details-section">
+                <h3 className="section-label">Description</h3>
+                <p className="section-text">
+                  {selectedItem.description && selectedItem.description.startsWith('[') 
+                    ? selectedItem.description.substring(selectedItem.description.indexOf(']') + 1).trim() 
+                    : selectedItem.description}
+                </p>
+              </div>
+
+              <div className="details-divider"></div>
+
+              <div className="details-pricing-section">
+                <h3 className="section-label">
+                  {selectedItem.listingType === 'For Sale' ? 'Price / Value' : 
+                   selectedItem.listingType === 'For Swap' ? 'Swapping For' : 
+                   'Budget'}
+                </h3>
+                <div className="details-price-value">
+                  {selectedItem.listingType === 'For Sale' ? `₱${selectedItem.price}` : 
+                   selectedItem.description && selectedItem.description.includes(':') 
+                    ? selectedItem.description.substring(selectedItem.description.indexOf(':') + 1, selectedItem.description.indexOf(']')).trim()
+                    : selectedItem.price}
+                </div>
+              </div>
+              </div>
+
+              <div className="details-footer">
+                <button className="btn-outline" onClick={() => setIsDetailsOpen(false)}>Cancel</button>
+                <button className="btn-primary" onClick={() => openBooking(selectedItem)}>Request Booking</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Request Booking Modal */}
+        {isBookingOpen && bookingItem && (
+          <div className="modal-overlay centered-overlay" onClick={() => setIsBookingOpen(false)}>
+            <div className="modal-content booking-popup" onClick={e => e.stopPropagation()}>
+              <div className="booking-header">
+                <div className="booking-title-row">
+                  <h2 className="booking-title">Request Booking</h2>
+                  <button className="details-close-btn" onClick={() => setIsBookingOpen(false)}><X size={20} /></button>
+                </div>
+                <p className="booking-subtitle">Book "{bookingItem.title}" for the selected dates</p>
+              </div>
+              <div className="booking-body">
+                {/* Start Date Section */}
+                <div className="date-section">
+                  <label className="section-label">Start Date</label>
+                  <div className="date-display-box">
+                    <Calendar size={16} /> <span>{startDate ? startDate.toLocaleDateString() : "Select start date"}</span>
+                  </div>
+                  <div className="calendar-widget">
+                    <div className="calendar-header">
+                      <span>{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                      <div className="calendar-nav">
+                        <ChevronLeft size={14} onClick={() => changeMonth(-1)} style={{ cursor: 'pointer' }} />
+                        <ChevronRight size={14} onClick={() => changeMonth(1)} style={{ cursor: 'pointer' }} />
+                      </div>
+                    </div>
+                    <div className="calendar-grid">
+                      <div className="day-name">Mo</div><div className="day-name">Tu</div><div className="day-name">We</div><div className="day-name">Th</div><div className="day-name">Fr</div><div className="day-name">Sa</div><div className="day-name">Su</div>
+                      {renderCalendarDays()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* End Date Section */}
+                <div className="date-section">
+                  <label className="section-label">End Date</label>
+                  <div className="date-display-box">
+                    <Calendar size={16} /> <span>{endDate ? endDate.toLocaleDateString() : "Select end date"}</span>
+                  </div>
+                </div>
+
+                <div className="message-section">
+                  <label className="section-label">Message (optional)</label>
+                  <textarea className="booking-textarea" placeholder="Add any special requests or information..."></textarea>
+                </div>
+              </div>
+
+              <div className="booking-footer">
+                <button className="btn-outline" onClick={() => setIsBookingOpen(false)}>Cancel</button>
+                <button className="btn-primary" onClick={() => {
+                  alert('Booking request for ' + bookingItem.title + ' submitted!');
+                  setIsBookingOpen(false);
+                }}>Request Booking</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Create New Listing Modal */}
         {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
+          <div className="modal-overlay centered-overlay" onClick={() => { setIsModalOpen(false); setModalError(''); }}>
+            <div className="modal-content add-listing-popup" onClick={e => e.stopPropagation()}>
               <div className="modal-header">
                 <h2 className="modal-title">Create New Listing</h2>
                 <button className="close-btn" onClick={() => { setIsModalOpen(false); setModalError(''); }}><X size={24} /></button>
