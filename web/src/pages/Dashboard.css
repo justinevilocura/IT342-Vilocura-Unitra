@@ -193,26 +193,100 @@
   box-shadow: 0 2px 8px rgba(255,255,255,0.1);
 }
 
-.category-dropdown {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
+.category-select-ui {
+  appearance: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px top 50%;
+  background-size: 10px auto;
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-md);
+  padding: 8px 36px 8px 16px;
   color: var(--text-primary);
   font-weight: 500;
   font-size: 0.9rem;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.category-dropdown:hover {
-  background: rgba(255, 255, 255, 0.1);
+.category-select-ui:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.category-select-ui option {
+  background-color: #121212;
+  color: #fff;
 }
 
 .ml-auto {
   margin-left: auto;
+}
+
+/* Pagination Controls */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.pagination-arrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.pagination-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-number {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--surface-border);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.pagination-number:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.pagination-number.active {
+  background: var(--text-primary);
+  color: var(--primary-bg);
+  border-color: var(--text-primary);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
 /* Marketplace Grid and Cards */
@@ -438,6 +512,24 @@
   color: var(--text-primary);
 }
 
+.modal-error-banner {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
 .close-btn {
   background: transparent;
   border: none;
@@ -507,6 +599,11 @@
   background-size: 10px auto;
 }
 
+.form-input.custom-select option {
+  background-color: #121212;
+  color: #fff;
+}
+
 .radio-group-vertical {
   display: flex;
   flex-direction: column;
@@ -530,6 +627,48 @@
   height: 18px;
   accent-color: var(--text-primary);
   cursor: pointer;
+}
+
+.custom-upload-box {
+  width: 100%;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.custom-upload-box:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+}
+
+.custom-upload-box span {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.preview-container {
+  margin-top: 12px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  width: fit-content;
+}
+
+.upload-preview {
+  display: block;
+  max-height: 120px;
+  width: auto;
+  object-fit: cover;
 }
 
 .modal-actions-centered {

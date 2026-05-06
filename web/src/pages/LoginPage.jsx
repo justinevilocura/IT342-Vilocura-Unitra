@@ -46,11 +46,16 @@ const LoginPage = () => {
         const data = await response.json();
         setStatusMsg({ type: 'success', text: data.message });
         localStorage.setItem('userId', data.userId);
+        localStorage.setItem('roleId', data.roleId);
 
-        // Handle SME Pending status
+        // Handle SME Statuses
         if (data.roleId === 1 && data.status === 'PENDING') {
           setTimeout(() => navigate('/pending'), 2000);
+        } else if (data.roleId === 1 && data.status === 'DECLINED') {
+          setStatusMsg({ type: 'error', text: 'Your request has been declined.' });
+          localStorage.clear(); // Clear the partial session
         } else {
+          localStorage.setItem('roleId', data.roleId); // Ensure roleId is set for approved users
           setTimeout(() => navigate('/dashboard'), 2000);
         }
       } else {
@@ -132,6 +137,13 @@ const LoginPage = () => {
           </p>
         </div>
       </div>
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="registration-toast">
+          <CheckCircle size={20} />
+          <span>Account created! Please check your email to verify.</span>
+        </div>
+      )}
     </div>
   );
 };

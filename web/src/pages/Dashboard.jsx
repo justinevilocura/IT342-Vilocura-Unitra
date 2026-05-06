@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogOut, MapPin, Calendar, CheckCircle2, ChevronDown, Plus, X } from 'lucide-react';
+import { Search, User, LogOut, MapPin, Calendar, CheckCircle2, ChevronDown, Plus, X, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [items, setItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
-  // Retrieve role from LocalStorage (we will save this during registration)
-  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'SME');
+  // Retrieve role from LocalStorage
+  const [roleId, setRoleId] = useState(parseInt(localStorage.getItem('roleId')) || 1);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalError, setModalError] = useState('');
   const [formData, setFormData] = useState({
     listingType: 'For Sale',
     category: '',
@@ -57,6 +62,25 @@ const Dashboard = () => {
     navigate('/login');
   };
 
+  const filteredItems = items.filter(item => {
+    // 1. Type Filter Logic
+    let matchesType = true;
+    if (activeFilter === 'For Sale') matchesType = item.listingType === 'For Sale';
+    else if (activeFilter === 'Swap') matchesType = item.listingType === 'For Swap';
+    else if (activeFilter === 'Wanted') matchesType = item.listingType === 'Looking to Buy';
+
+    // 2. Category Filter Logic
+    let matchesCategory = true;
+    if (activeCategory !== 'All') matchesCategory = item.category === activeCategory;
+
+    // 3. Search Query Logic
+    const matchesSearch = 
+      (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesType && matchesCategory && matchesSearch;
+  });
+
   return (
     <div className="dashboard-layout">
       {/* Dynamic Background */}
@@ -77,7 +101,7 @@ const Dashboard = () => {
 
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             {/* The Actual Conditional Render */}
-            {userRole === 'SME' && (
+            {roleId === 1 && (
               <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setIsModalOpen(true)}>
                 <Plus size={18} /> Add Listing
               </button>
@@ -89,7 +113,13 @@ const Dashboard = () => {
         <div className="glass-panel filter-bar">
           <div className="search-wrapper">
             <Search size={20} className="search-icon" />
-            <input type="text" className="search-input" placeholder="Search Items..." />
+            <input 
+              type="text" 
+              className="search-input" 
+              placeholder="Search Items..." 
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            />
           </div>
 
           <div className="filter-controls">
@@ -100,7 +130,7 @@ const Dashboard = () => {
                   <button
                     key={filter}
                     className={`pill-btn ${activeFilter === filter ? 'active' : ''}`}
-                    onClick={() => setActiveFilter(filter)}
+                    onClick={() => { setActiveFilter(filter); setCurrentPage(1); }}
                   >
                     {filter}
                   </button>
@@ -110,16 +140,24 @@ const Dashboard = () => {
 
             <div className="filter-group ml-auto">
               <span className="filter-label">Category</span>
-              <button className="category-dropdown">
-                All Categories <ChevronDown size={16} />
-              </button>
+              <select 
+                className="category-select-ui" 
+                value={activeCategory}
+                onChange={(e) => { setActiveCategory(e.target.value); setCurrentPage(1); }}
+              >
+                <option value="All">All Categories</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Tools">Tools</option>
+                <option value="Services">Services</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
           </div>
         </div>
 
         {/* Marketplace Grid */}
         <div className="items-grid">
-          {items.map((item) => (
+          {filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
             <div className="item-card glass-panel hover-lift" key={item.id}>
               {item.imageData ? (
                 <img src={item.imageData} alt={item.title} className="card-image" />
@@ -163,14 +201,56 @@ const Dashboard = () => {
           ))}
         </div>
 
+        {/* Pagination Controls */}
+        {filteredItems.length > itemsPerPage && (
+          <div className="pagination-container">
+            <button 
+              className="pagination-arrow" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="pagination-numbers">
+              {Array.from({ length: Math.ceil(filteredItems.length / itemsPerPage) }, (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <button 
+                    key={pageNum}
+                    className={`pagination-number ${currentPage === pageNum ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button 
+              className={`pagination-arrow`}
+              disabled={currentPage >= Math.ceil(filteredItems.length / itemsPerPage)}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+
         {/* Create New Listing Modal */}
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
               <div className="modal-header">
                 <h2 className="modal-title">Create New Listing</h2>
-                <button className="close-btn" onClick={() => setIsModalOpen(false)}><X size={24} /></button>
+                <button className="close-btn" onClick={() => { setIsModalOpen(false); setModalError(''); }}><X size={24} /></button>
               </div>
+
+              {modalError && (
+                <div className="modal-error-banner">
+                  {modalError}
+                </div>
+              )}
 
               <form className="modal-form">
                 <div className="form-group">
@@ -213,8 +293,16 @@ const Dashboard = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Price / Value</label>
-                  <input type="text" className="form-input" placeholder="Enter amount in PHP" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} />
+                  <label>Price / Value (₱)</label>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    placeholder="Enter amount" 
+                    value={formData.price} 
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    min="0"
+                    step="0.01"
+                  />
                 </div>
 
                 <div className="form-row">
@@ -234,23 +322,49 @@ const Dashboard = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Upload Image</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <input type="file" accept="image/*" className="form-input" onChange={handleImageUpload} />
-                    {formData.imageData && (
-                      <img src={formData.imageData} alt="Preview" style={{ height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
-                    )}
+                  <label>Product Image</label>
+                  <div className="custom-upload-box" onClick={() => document.getElementById('product-image-up').click()}>
+                    <Upload size={20} />
+                    <span>{formData.imageData ? "Image Selected (Click to change)" : "Select image of your product"}</span>
+                    <input 
+                      type="file" 
+                      id="product-image-up"
+                      style={{ display: 'none' }} 
+                      onChange={handleImageUpload}
+                      accept="image/*"
+                    />
                   </div>
+                  {formData.imageData && (
+                    <div className="preview-container">
+                      <img src={formData.imageData} alt="Preview" className="upload-preview" />
+                    </div>
+                  )}
                 </div>
 
                 <div className="modal-actions-centered">
                   <button type="button" className="btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
                   <button type="button" className="btn-primary" onClick={async () => {
+                    // Validation: Check if all required fields are filled
+                    const requiredFields = ['category', 'title', 'description', 'price', 'name', 'company', 'location', 'imageData'];
+                    const missingFields = requiredFields.filter(field => !formData[field]);
+                    
+                    if (missingFields.length > 0) {
+                      setModalError('Please fill out all fields and upload an image.');
+                      return;
+                    }
+
+                    if (isNaN(formData.price) || parseFloat(formData.price) < 0) {
+                      setModalError('Please enter a valid numeric price.');
+                      return;
+                    }
+
+                    setModalError(''); // Clear error before submission
+
                     try {
                       const payload = {
                         ...formData,
                         userId: localStorage.getItem('userId') || 1, // fallback to avoid constraint errors
-                        price: parseFloat(formData.price.replace(/[^0-9.]/g, '')) || 0
+                        price: parseFloat(formData.price)
                       };
                       const res = await fetch('http://localhost:8080/api/products', {
                         method: 'POST',
@@ -259,14 +373,16 @@ const Dashboard = () => {
                       });
                       if (res.ok) {
                         setIsModalOpen(false);
+                        setModalError('');
                         setFormData({ listingType: 'For Sale', category: '', title: '', description: '', price: '', name: '', company: '', location: '', imageData: '' });
                         fetchListings(); // automatically refresh the board
                       } else {
                         const errorText = await res.text();
-                        alert('Error saving listing: ' + errorText);
+                        setModalError('Error saving listing: ' + errorText);
                         console.error("Backend error:", errorText);
                       }
                     } catch (e) {
+                      setModalError('Network error. Please try again.');
                       console.error("Error creating listing", e);
                     }
                   }}>Create Listing</button>

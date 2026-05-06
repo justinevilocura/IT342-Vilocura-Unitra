@@ -26,6 +26,7 @@ public class AdminSeeder {
                 admin.setRole(User.Role.ADMIN);
                 admin.setRoleId(3L); // Assuming 3L is ADMIN roleId as per previous inference
                 admin.setStatus("APPROVED");
+                admin.setEmailVerified(true);
 
                 userRepository.save(admin);
                 System.out.println("Admin user seeded automatically.");

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Check, X, Download } from 'lucide-react';
 import './AdminPendingRequests.css';
 
 const AdminPendingRequests = () => {
@@ -79,27 +80,20 @@ const AdminPendingRequests = () => {
               <div className="column" style={{ alignItems: 'center' }}>
                 <span className="column-label">SCHOOL ID(IMG)</span>
                 <div className="download-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3" />
-                  </svg>
+                  <Download size={20} />
                 </div>
               </div>
 
               <div className="actions-area">
                 <button className="btn-action approve" onClick={() => handleAction(req.id, 'approve')}>
                   <span className="icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
+                    <Check size={18} strokeWidth={3} />
                   </span> 
                   Approve
                 </button>
                 <button className="btn-action decline" onClick={() => handleAction(req.id, 'decline')}>
                   <span className="icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
+                    <X size={18} strokeWidth={3} />
                   </span>
                   Decline
                 </button>

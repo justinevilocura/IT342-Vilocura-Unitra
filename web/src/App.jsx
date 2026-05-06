@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegistrationPage from './pages/RegistrationPage';
@@ -10,7 +10,18 @@ import Navbar from './components/Navbar';
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+  const hideNavbar = ['/login', '/register', '/pending'].includes(location.pathname);
+
+  return (
+    <>
+      {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -19,7 +30,7 @@ function App() {
         <Route path="/pending" element={<PendingPage />} />
         <Route path="/admin/pending" element={<AdminPendingRequests />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 

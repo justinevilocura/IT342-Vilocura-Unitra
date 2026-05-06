@@ -21,7 +21,7 @@ const Navbar = () => {
           {userId ? (
             <>
               <Link to="/dashboard" className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Marketplace</Link>
-              <Link to="/user-dashboard" className="nav-link">Dashboard</Link>
+              <Link to="/dashboard" className="nav-link">Dashboard</Link>
               <Link to="/community" className="nav-link">Community</Link>
               <Link to="/bookings" className="nav-link">Bookings</Link>
               {roleId === '3' && (

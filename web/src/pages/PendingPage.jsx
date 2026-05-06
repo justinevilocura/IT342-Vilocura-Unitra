@@ -3,6 +3,10 @@ import { Clock, ArrowLeft } from 'lucide-react';
 import './PendingPage.css';
 
 const PendingPage = () => {
+  const handleBackToLogin = () => {
+    localStorage.clear();
+  };
+
   return (
     <div className="pending-container">
       <div className="pending-card">
@@ -18,7 +22,7 @@ const PendingPage = () => {
           An Admin will approve or decline your request shortly.
         </p>
         
-        <Link to="/login" className="back-to-login">
+        <Link to="/login" className="back-to-login" onClick={handleBackToLogin}>
           <ArrowLeft size={20} /> Back to Login
         </Link>
       </div>

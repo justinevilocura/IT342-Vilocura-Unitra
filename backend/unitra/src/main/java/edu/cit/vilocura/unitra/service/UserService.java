@@ -27,6 +27,7 @@ public class UserService {
     // Register user
     @Transactional
     public User registerUser(User user) {
+        System.out.println("Registering user: " + user.getEmail() + " with role: " + user.getRole());
         if (isEmailTaken(user.getEmail())) {
             throw new IllegalArgumentException("Email is already taken");
         }
@@ -41,10 +42,13 @@ public class UserService {
         emailService.sendVerificationEmail(user.getEmail(), token);
         
         if (user.getRole() == User.Role.SME) {
+            System.out.println("Assigning Role ID 1 (SME)");
             user.setRoleId(1L);
         } else if (user.getRole() == User.Role.CONSUMER) {
+            System.out.println("Assigning Role ID 2 (CONSUMER)");
             user.setRoleId(2L);
         } else {
+            System.out.println("Assigning Role ID 3 (ADMIN/UNKNOWN)");
             user.setRoleId(3L);
         }
         return userRepository.save(user);

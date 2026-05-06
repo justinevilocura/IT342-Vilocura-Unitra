@@ -119,4 +119,13 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public void setRole(String roleStr) {
+        if (roleStr == null) return;
+        try {
+            this.role = Role.valueOf(roleStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            // Log or handle invalid role
+        }
+    }
 }
