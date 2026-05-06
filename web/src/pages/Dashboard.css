@@ -168,7 +168,7 @@
 /* Category Pill Buttons */
 .pill-group {
   display: flex;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-pill);
   padding: 4px;
@@ -190,7 +190,7 @@
 .pill-btn.active {
   background: var(--text-primary);
   color: var(--primary-bg);
-  box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
 }
 
 .category-select-ui {
@@ -306,8 +306,8 @@
 
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .card-image-placeholder {
@@ -378,9 +378,23 @@
   border: 1px solid var(--surface-border);
 }
 
-.tag-buy { color: #27C93F; background: rgba(39, 201, 63, 0.1); border-color: rgba(39, 201, 63, 0.2); }
-.tag-sale { color: #FFBD2E; background: rgba(255, 189, 46, 0.1); border-color: rgba(255, 189, 46, 0.2); }
-.tag-swap { color: #8A2BE2; background: rgba(138, 43, 226, 0.1); border-color: rgba(138, 43, 226, 0.2); }
+.tag-buy {
+  color: #27C93F;
+  background: rgba(39, 201, 63, 0.1);
+  border-color: rgba(39, 201, 63, 0.2);
+}
+
+.tag-sale {
+  color: #FFBD2E;
+  background: rgba(255, 189, 46, 0.1);
+  border-color: rgba(255, 189, 46, 0.2);
+}
+
+.tag-swap {
+  color: #8A2BE2;
+  background: rgba(138, 43, 226, 0.1);
+  border-color: rgba(138, 43, 226, 0.2);
+}
 
 .tag-available {
   font-size: 0.75rem;
@@ -422,6 +436,25 @@
   margin-bottom: 16px;
 }
 
+.swap-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.swap-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.swap-requirement-text {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .item-meta {
   display: flex;
   justify-content: space-between;
@@ -455,47 +488,87 @@
 }
 
 @media (max-width: 768px) {
-  .nav-tabs { display: none; }
-  .page-header { flex-direction: column; gap: 16px; }
-  .filter-controls { flex-direction: column; align-items: stretch; }
-  .filter-group { flex-wrap: wrap; }
-  .category-dropdown { width: 100%; justify-content: space-between; }
-  .ml-auto { margin-left: 0; }
+  .nav-tabs {
+    display: none;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    flex-wrap: wrap;
+  }
+
+  .category-dropdown {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .ml-auto {
+    margin-left: 0;
+  }
 }
 
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000; /* Pure black for total coverage */
   display: flex;
-  align-items: center; /* Exactly centers the box */
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease forwards;
-  padding: 24px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 9999; /* Highest priority */
+  animation: fadeIn 0.4s ease forwards;
+  overflow-y: auto;
+}
+
+/* Cleaner, subtle scrollbar for the modal overlay */
+.modal-overlay::-webkit-scrollbar {
+  width: 6px; /* Even thinner */
+}
+
+.modal-overlay::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.modal-overlay::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05) !important; /* Extremely subtle */
+  border-radius: 10px;
+}
+
+.modal-overlay::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .modal-content {
   width: 100%;
   max-width: 550px;
-  max-height: 85vh; /* Strictly limits height so it never cuts off top/bottom! */
-  overflow-y: auto; /* Adds scrollbar INSIDE the box */
-  margin: 0;
   border-radius: var(--radius-xl);
-  padding: 32px 32px 40px;
-  background: rgba(18, 18, 18, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.05) inset;
+  padding: 40px;
+  background: #0f0f0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: relative;
+  margin-bottom: 60px;
 }
 
 .modal-content::-webkit-scrollbar {
   width: 6px;
 }
+
 .modal-content::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
 }
 
@@ -525,9 +598,19 @@
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 .close-btn {
@@ -688,6 +771,13 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

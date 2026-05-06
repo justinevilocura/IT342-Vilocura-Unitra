@@ -74,7 +74,7 @@ const Dashboard = () => {
     if (activeCategory !== 'All') matchesCategory = item.category === activeCategory;
 
     // 3. Search Query Logic
-    const matchesSearch = 
+    const matchesSearch =
       (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.description || '').toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -113,10 +113,10 @@ const Dashboard = () => {
         <div className="glass-panel filter-bar">
           <div className="search-wrapper">
             <Search size={20} className="search-icon" />
-            <input 
-              type="text" 
-              className="search-input" 
-              placeholder="Search Items..." 
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search Items..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             />
@@ -140,15 +140,18 @@ const Dashboard = () => {
 
             <div className="filter-group ml-auto">
               <span className="filter-label">Category</span>
-              <select 
-                className="category-select-ui" 
+              <select
+                className="category-select-ui"
                 value={activeCategory}
                 onChange={(e) => { setActiveCategory(e.target.value); setCurrentPage(1); }}
               >
                 <option value="All">All Categories</option>
-                <option value="Equipment">Equipment</option>
-                <option value="Tools">Tools</option>
-                <option value="Services">Services</option>
+                <option value="Office & Business Supplies">Office & Business Supplies</option>
+                <option value="Electronics & Tech">Electronics & Tech</option>
+                <option value="Fashion & Apparel">Fashion & Apparel</option>
+                <option value="Health & Beauty">Health & Beauty</option>
+                <option value="Home & Lifestyle">Home & Lifestyle</option>
+                <option value="Automotive & Transport">Automotive & Transport</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -181,10 +184,27 @@ const Dashboard = () => {
                   <CheckCircle2 size={14} className="verified-icon" /> {item.companyName || item.name || `User ID ${item.userId}`}
                 </div>
 
-                <p className="item-desc">{item.description}</p>
+                <p className="item-desc">
+                  {item.description && item.description.startsWith('[')
+                    ? item.description.substring(item.description.indexOf(']') + 1).trim()
+                    : item.description}
+                </p>
 
                 <div className="item-price">
-                  Price: ₱{item.price}
+                  {item.listingType === 'For Sale' ? (
+                    <>Price: ₱{item.price}</>
+                  ) : (
+                    <div className="swap-details">
+                      <span className="swap-label">
+                        {item.listingType === 'For Swap' ? 'Swapping for: ' : 'Looking for: '}
+                      </span>
+                      <span className="swap-requirement-text">
+                        {item.description && item.description.includes(':')
+                          ? item.description.substring(item.description.indexOf(':') + 1, item.description.indexOf(']')).trim()
+                          : 'Specific Item'}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="item-meta">
@@ -204,19 +224,19 @@ const Dashboard = () => {
         {/* Pagination Controls */}
         {filteredItems.length > itemsPerPage && (
           <div className="pagination-container">
-            <button 
-              className="pagination-arrow" 
+            <button
+              className="pagination-arrow"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => prev - 1)}
             >
               <ChevronLeft size={20} />
             </button>
-            
+
             <div className="pagination-numbers">
               {Array.from({ length: Math.ceil(filteredItems.length / itemsPerPage) }, (_, i) => {
                 const pageNum = i + 1;
                 return (
-                  <button 
+                  <button
                     key={pageNum}
                     className={`pagination-number ${currentPage === pageNum ? 'active' : ''}`}
                     onClick={() => setCurrentPage(pageNum)}
@@ -227,7 +247,7 @@ const Dashboard = () => {
               })}
             </div>
 
-            <button 
+            <button
               className={`pagination-arrow`}
               disabled={currentPage >= Math.ceil(filteredItems.length / itemsPerPage)}
               onClick={() => setCurrentPage(prev => prev + 1)}
@@ -275,9 +295,12 @@ const Dashboard = () => {
                   <label>Category</label>
                   <select className="form-input custom-select" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
                     <option value="" disabled>Select a category</option>
-                    <option value="Equipment">Equipment</option>
-                    <option value="Tools">Tools</option>
-                    <option value="Services">Services</option>
+                    <option value="Office & Business Supplies">Office & Business Supplies</option>
+                    <option value="Electronics & Tech">Electronics & Tech</option>
+                    <option value="Fashion & Apparel">Fashion & Apparel</option>
+                    <option value="Health & Beauty">Health & Beauty</option>
+                    <option value="Home & Lifestyle">Home & Lifestyle</option>
+                    <option value="Automotive & Transport">Automotive & Transport</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
@@ -293,15 +316,23 @@ const Dashboard = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Price / Value (₱)</label>
-                  <input 
-                    type="number" 
-                    className="form-input" 
-                    placeholder="Enter amount" 
-                    value={formData.price} 
+                  <label>
+                    {formData.listingType === 'For Sale' ? 'Price / Value (₱)' :
+                      formData.listingType === 'For Swap' ? 'Swapping For' :
+                        'Looking For'}
+                  </label>
+                  <input
+                    type={formData.listingType === 'For Sale' ? 'number' : 'text'}
+                    className="form-input"
+                    placeholder={
+                      formData.listingType === 'For Sale' ? 'Enter amount' :
+                        formData.listingType === 'For Swap' ? 'What are you looking to swap with?' :
+                          'What are you looking for?'
+                    }
+                    value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    min="0"
-                    step="0.01"
+                    min={formData.listingType === 'For Sale' ? "0" : undefined}
+                    step={formData.listingType === 'For Sale' ? "0.01" : undefined}
                   />
                 </div>
 
@@ -326,10 +357,10 @@ const Dashboard = () => {
                   <div className="custom-upload-box" onClick={() => document.getElementById('product-image-up').click()}>
                     <Upload size={20} />
                     <span>{formData.imageData ? "Image Selected (Click to change)" : "Select image of your product"}</span>
-                    <input 
-                      type="file" 
+                    <input
+                      type="file"
                       id="product-image-up"
-                      style={{ display: 'none' }} 
+                      style={{ display: 'none' }}
                       onChange={handleImageUpload}
                       accept="image/*"
                     />
@@ -347,13 +378,13 @@ const Dashboard = () => {
                     // Validation: Check if all required fields are filled
                     const requiredFields = ['category', 'title', 'description', 'price', 'name', 'company', 'location', 'imageData'];
                     const missingFields = requiredFields.filter(field => !formData[field]);
-                    
+
                     if (missingFields.length > 0) {
                       setModalError('Please fill out all fields and upload an image.');
                       return;
                     }
 
-                    if (isNaN(formData.price) || parseFloat(formData.price) < 0) {
+                    if (formData.listingType === 'For Sale' && (isNaN(formData.price) || parseFloat(formData.price) < 0)) {
                       setModalError('Please enter a valid numeric price.');
                       return;
                     }
@@ -364,7 +395,8 @@ const Dashboard = () => {
                       const payload = {
                         ...formData,
                         userId: localStorage.getItem('userId') || 1, // fallback to avoid constraint errors
-                        price: parseFloat(formData.price)
+                        price: formData.listingType === 'For Sale' ? parseFloat(formData.price) : 0,
+                        description: formData.listingType === 'For Sale' ? formData.description : `[${formData.listingType === 'For Swap' ? 'SWAP' : 'WANTED'}: ${formData.price}] ${formData.description}`
                       };
                       const res = await fetch('http://localhost:8080/api/products', {
                         method: 'POST',

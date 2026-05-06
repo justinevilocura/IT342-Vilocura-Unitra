@@ -39,6 +39,12 @@ public class Product {
     @Column(name = "image_data", columnDefinition = "TEXT")
     private String imageData;
 
+    @Column(name = "seller_name")
+    private String sellerName;
+
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
     private LocalDateTime createdAt;
 
@@ -83,29 +89,22 @@ public class Product {
     public void setPrice(BigDecimal price) { this.price = price; }
     
     public String getLocation() { return location; }
-    public void setLocation(String location) {
-        this.location = location;
-    }
+    public void setLocation(String location) { this.location = location; }
 
-    public String getCompanyName() {
-        return companyName;
-    }
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
+    public String getImageData() { return imageData; }
+    public void setImageData(String imageData) { this.imageData = imageData; }
 
-    public String getImageData() {
-        return imageData;
-    }
+    public String getSellerName() { return sellerName; }
+    public void setSellerName(String sellerName) { this.sellerName = sellerName; }
 
-    public void setImageData(String imageData) {
-        this.imageData = imageData;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
