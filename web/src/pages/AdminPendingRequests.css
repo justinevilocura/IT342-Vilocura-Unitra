@@ -1,0 +1,160 @@
+.admin-container {
+  padding: 120px 100px;
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Reusing mesh gradients from SME POV */
+.mesh-gradient {
+  position: absolute;
+  width: 1000px;
+  height: 1000px;
+  filter: blur(120px);
+  opacity: 0.15;
+  border-radius: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mesh-1 {
+  background: var(--mesh-1);
+  top: -400px;
+  left: -200px;
+  animation: float 20s infinite alternate;
+}
+
+.mesh-2 {
+  background: var(--mesh-3);
+  bottom: -400px;
+  right: -200px;
+  animation: float 25s infinite alternate-reverse;
+}
+
+.admin-header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 50px;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+.requests-table-container {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.request-card {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  border-radius: 16px;
+  padding: 25px 35px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.request-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.column-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+.column-value {
+  font-size: 15px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.email-link {
+  color: #a5b4fc;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+.email-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.download-icon {
+  cursor: pointer;
+  color: #fff;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.download-icon:hover {
+  opacity: 1;
+}
+
+.actions-area {
+  display: flex;
+  gap: 16px;
+  flex: 1.5;
+  justify-content: flex-end;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.btn-action.approve:hover {
+  background: #22c55e;
+  border-color: #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-action.decline:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.loading, .no-requests {
+  padding: 100px;
+  text-align: center;
+  color: #71717a;
+  font-size: 18px;
+}
+
+@keyframes float {
+  from { transform: translate(0, 0); }
+  to { transform: translate(50px, 50px); }
+}

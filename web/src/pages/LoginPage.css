@@ -1,0 +1,317 @@
+.login-page-new {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--primary-bg);
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* Left Side: Matching Landing Page Aesthetic */
+.login-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px;
+  background-color: var(--primary-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Reusing mesh gradients from Landing Page */
+.login-left::before {
+  content: "";
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  background: var(--mesh-1);
+  filter: blur(120px);
+  opacity: 0.15;
+  border-radius: 100%;
+  top: -200px;
+  left: -200px;
+  z-index: 0;
+}
+
+.login-left::after {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: var(--mesh-2);
+  filter: blur(100px);
+  opacity: 0.1;
+  border-radius: 100%;
+  bottom: -100px;
+  right: -100px;
+  z-index: 0;
+}
+
+.welcome-content {
+  max-width: 500px;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-content h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -0.04em;
+}
+
+.welcome-content .text-gradient {
+  background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.4));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.welcome-content p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Right Side: Dark Glassmorphic Form */
+.login-right {
+  flex: 1;
+  background-color: var(--primary-bg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.login-form-container {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--surface-bg);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+}
+
+.reg-scroll {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.reg-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.reg-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.back-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--text-primary);
+}
+
+.form-header h2 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.form-header p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Role Selector for Registration */
+.role-selector-new {
+  margin-bottom: 30px;
+}
+
+.role-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.role-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.role-btns button {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all var(--transition-smooth);
+}
+
+.role-btns button.active {
+  background-color: var(--text-primary);
+  color: var(--primary-bg);
+  border-color: var(--text-primary);
+}
+
+.role-btns button:not(.active) {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.role-btns button:not(.active):hover {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text-primary);
+}
+
+/* Upload section */
+.upload-section-new {
+  margin-bottom: 30px;
+}
+
+.upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--surface-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-secondary);
+}
+
+.upload-box:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+}
+
+/* Submit Button using btn-primary style */
+.btn-login-new {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--text-primary);
+  color: var(--primary-bg);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all var(--transition-smooth);
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
+}
+
+.btn-login-new:hover {
+  transform: translateY(-2px);
+  background-color: #f0f0f0;
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.form-footer a {
+  color: var(--text-primary);
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.status-message {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.status-message.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-message.success {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+@media (max-width: 1024px) {
+  .login-page-new {
+    flex-direction: column;
+  }
+  .login-left {
+    padding: 60px 40px;
+    flex: none;
+    min-height: auto;
+  }
+  .login-right {
+    padding: 40px 20px;
+  }
+  .login-form-container {
+    padding: 40px 30px;
+    box-shadow: none;
+  }
+}

@@ -28,9 +28,10 @@ const RegistrationPage = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
-    if (!formData.email.endsWith('@cit.edu')) {
-      setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email to register.' });
+    
+    // Only enforce @cit.edu for Entrepreneurs (SME)
+    if (role === 'SME' && !formData.email.endsWith('@cit.edu')) {
+      setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email to register as an Entrepreneur.' });
       return;
     }
 
@@ -61,7 +62,7 @@ const RegistrationPage = () => {
       if (response.ok) {
         setStatusMsg({ type: 'success', text: responseText });
         localStorage.setItem('userRole', role); // Save the chosen role to local storage so the dashboard knows!
-        setTimeout(() => navigate('/login'), 2000);
+        setTimeout(() => navigate('/login', { state: { registered: true } }), 2000);
       } else {
         setStatusMsg({ type: 'error', text: responseText || 'Registration failed' });
       }
@@ -73,113 +74,121 @@ const RegistrationPage = () => {
   };
 
   return (
-    <div className="auth-layout">
-      <div className="auth-card reg-card">
-        <Link to="/" className="back-link">
-          <ArrowLeft size={16} /> Back to Home
-        </Link>
-        
-        <div className="auth-header">
-          <div className="logo-text">
-             <Sparkles size={20} style={{ color: "var(--mesh-2)" }} /> Unitra
-          </div>
-          <h2>Create Account</h2>
-          <p className="auth-subtitle">Join the network to collaborate and grow together.</p>
+    <div className="login-page-new">
+      {/* Left Side */}
+      <div className="login-left">
+        <div className="welcome-content">
+          <h1>
+            Unite. Share.<br />
+            <span className="text-gradient">Grow Together.</span>
+          </h1>
+          <p>
+            Join the campus network where student entrepreneurs share resources, knowledge, and opportunities to accelerate growth through collaboration.
+          </p>
         </div>
+      </div>
 
-        {statusMsg.text && (
-          <div className={`status-message ${statusMsg.type}`}>
-            {statusMsg.text}
-          </div>
-        )}
-
-        <form className="auth-form" onSubmit={handleRegister}>
-          <label className="form-label">
-            Full Name
-            <input 
-              type="text" 
-              name="name"
-              className="input-field" 
-              placeholder="John Doe" 
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <label className="form-label">
-            Institutional Email
-            <input 
-              type="email" 
-              name="email"
-              className="input-field" 
-              placeholder="johndoe@cit.edu" 
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <label className="form-label">
-            Password
-            <input 
-              type="password" 
-              name="password"
-              className="input-field" 
-              placeholder="••••••••••" 
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <div className="role-selector-wrapper">
-             <span className="role-label">I want to be a...</span>
-             <div className="role-toggle">
-               <button 
-                 type="button" 
-                 className={`toggle-btn ${role === 'SME' ? 'active' : ''}`}
-                 onClick={() => setRole('SME')}
-               >
-                 Entrepreneur
-               </button>
-               <button 
-                 type="button" 
-                 className={`toggle-btn ${role === 'CONSUMER' ? 'active' : ''}`}
-                 onClick={() => setRole('CONSUMER')}
-               >
-                 Consumer
-               </button>
-             </div>
+      {/* Right Side */}
+      <div className="login-right">
+        <div className="login-form-container reg-scroll">
+          <Link to="/" className="back-link">
+            <ArrowLeft size={16} /> Back to home
+          </Link>
+          
+          <div className="form-header">
+            <h2>Create Account</h2>
+            <p>Start your journey in the campus marketplace today.</p>
           </div>
 
-          {role === 'SME' && (
-            <div className="upload-section">
-              <span className="upload-text">Upload School ID for verification (B2B)</span>
-              <label className="upload-dropzone" htmlFor="school-id-upload">
-                 <UploadCloud size={24} className="upload-icon-cloud" />
-                 <span style={{ textAlign: 'center' }}>
-                   {file ? file.name : "Click to upload or drag and drop"}
-                 </span>
-                 <input 
-                   type="file" 
-                   id="school-id-upload" 
-                   style={{ display: 'none' }} 
-                   onChange={handleFileChange}
-                   accept="image/*,.pdf"
-                 />
-              </label>
+          {statusMsg.text && (
+            <div className={`status-message ${statusMsg.type}`}>
+              {statusMsg.text}
             </div>
           )}
 
-          <button type="submit" className="btn-primary block" disabled={isLoading}>
-            {isLoading ? 'Creating...' : 'Create Account'}
-          </button>
-        </form>
+          <form className="login-form" onSubmit={handleRegister}>
+            <div className="form-group">
+              <label>Full Name</label>
+              <input 
+                type="text" 
+                name="name"
+                placeholder="John Doe" 
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign In</Link>
-        </p>
+            <div className="form-group">
+              <label>Institutional Email</label>
+              <input 
+                type="email" 
+                name="email"
+                placeholder="johndoe@cit.edu"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Password</label>
+              <input 
+                type="password" 
+                name="password"
+                placeholder="••••••••••" 
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="role-selector-new">
+               <span className="role-label">I want to join as a...</span>
+               <div className="role-btns">
+                 <button 
+                   type="button" 
+                   className={role === 'SME' ? 'active' : ''}
+                   onClick={() => setRole('SME')}
+                 >
+                   Entrepreneur
+                 </button>
+                 <button 
+                   type="button" 
+                   className={role === 'CONSUMER' ? 'active' : ''}
+                   onClick={() => setRole('CONSUMER')}
+                 >
+                   Consumer
+                 </button>
+               </div>
+            </div>
+
+            {role === 'SME' && (
+              <div className="upload-section-new">
+                <label>Verification (School ID)</label>
+                <div className="upload-box" onClick={() => document.getElementById('file-up').click()}>
+                   <UploadCloud size={20} />
+                   <span>{file ? file.name : "Click to upload your ID"}</span>
+                   <input 
+                     type="file" 
+                     id="file-up"
+                     style={{ display: 'none' }} 
+                     onChange={handleFileChange}
+                     accept="image/*,.pdf"
+                   />
+                </div>
+              </div>
+            )}
+
+            <button type="submit" className="btn-login-new" disabled={isLoading}>
+              {isLoading ? 'Creating Account...' : 'Get Started'}
+            </button>
+          </form>
+
+          <p className="form-footer">
+            Already have an account? <Link to="/login">Sign In</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

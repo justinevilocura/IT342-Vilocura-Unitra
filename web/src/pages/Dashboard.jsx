@@ -63,24 +63,7 @@ const Dashboard = () => {
       <div className="mesh-gradient mesh-1" style={{ opacity: 0.15 }}></div>
       <div className="mesh-gradient mesh-3" style={{ opacity: 0.1 }}></div>
 
-      {/* Dashboard Top Navigation */}
-      <nav className="dashboard-nav">
-        <div className="nav-container">
-          <Link to="/dashboard" className="brand-logo text-gradient">Unitra</Link>
-
-          <div className="nav-tabs">
-            <span className="tab active">Marketplace</span>
-            <span className="tab">Dashboard</span>
-            <span className="tab">Community</span>
-            <span className="tab">Bookings</span>
-          </div>
-
-          <div className="nav-actions">
-            <button className="icon-btn"><User size={20} /></button>
-            <button className="icon-btn logout-btn" onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
-          </div>
-        </div>
-      </nav>
+      <div className="mesh-gradient mesh-3" style={{ opacity: 0.1 }}></div>
 
       {/* Main Content Area */}
       <main className="dashboard-main">

@@ -27,6 +27,12 @@ public class User {
     @Column(name = "status", nullable = false)
     private String status = "PENDING";
 
+    @Column(name = "email_verified", nullable = false, columnDefinition = "boolean default false")
+    private boolean emailVerified = false;
+
+    @Column(name = "verification_token")
+    private String verificationToken;
+
     @Transient
     private Role role;
 
@@ -58,6 +64,22 @@ public class User {
     }
 
     // Other getters and setters
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
     public String getStatus() {
         return status;
     }

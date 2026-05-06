@@ -10,7 +10,6 @@ const LandingPage = () => {
       <div className="mesh-gradient mesh-2"></div>
       <div className="mesh-gradient mesh-3"></div>
 
-      <Navbar />
       <main className="hero-section">
         <div className="hero-content">
           <div className="pill-badge">
@@ -18,7 +17,7 @@ const LandingPage = () => {
             Campus Marketplace &amp; Community Hub
           </div>
           <h1>
-            Unite. Share.<br/>
+            Unite. Share.<br />
             <span className="text-gradient">Grow Together.</span>
           </h1>
           <p className="hero-subtitle">
@@ -45,20 +44,20 @@ const LandingPage = () => {
               <div className="mock-skeleton line"></div>
               <div className="mock-skeleton line short"></div>
               <div className="mock-analytics">
-                 <div className="bar b1"></div>
-                 <div className="bar b2"></div>
-                 <div className="bar b3"></div>
-                 <div className="bar b4"></div>
-                 <div className="bar b5"></div>
+                <div className="bar b1"></div>
+                <div className="bar b2"></div>
+                <div className="bar b3"></div>
+                <div className="bar b4"></div>
+                <div className="bar b5"></div>
               </div>
             </div>
           </div>
           <div className="glass-card visual-card floating-card-1">
-             <div className="icon-circle">🚀</div>
-             <div className="col">
-               <span className="small-bold">New SME Partner</span>
-               <span className="small-text">Just joined the network</span>
-             </div>
+            <div className="icon-circle">🚀</div>
+            <div className="col">
+              <span className="small-bold">New SME Partner</span>
+              <span className="small-text">Just joined the network</span>
+            </div>
           </div>
         </div>
       </main>

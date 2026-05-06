@@ -15,6 +15,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     // Check if email is already taken
     public boolean isEmailTaken(String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -28,6 +31,15 @@ public class UserService {
             throw new IllegalArgumentException("Email is already taken");
         }
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword())); // Encrypt password using BCrypt
+        
+        // Setup verification
+        user.setEmailVerified(false);
+        String token = java.util.UUID.randomUUID().toString();
+        user.setVerificationToken(token);
+        
+        // Send actual verification email
+        emailService.sendVerificationEmail(user.getEmail(), token);
+        
         if (user.getRole() == User.Role.SME) {
             user.setRoleId(1L);
         } else if (user.getRole() == User.Role.CONSUMER) {
@@ -38,16 +50,31 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // Verify Email
+    @Transactional
+    public void verifyEmail(String token) {
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid verification token"));
+        
+        user.setEmailVerified(true);
+        user.setVerificationToken(null); // Clear token after verification
+        userRepository.save(user);
+    }
+
     // Login user
     public User loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
-        if (new BCryptPasswordEncoder().matches(password, user.getPassword())) {
-            return user; // Successful login
-        } else {
+        if (!new BCryptPasswordEncoder().matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
+
+        if (!user.isEmailVerified()) {
+            throw new IllegalArgumentException("Verify your Email");
+        }
+
+        return user; // Successful login
     }
 
     public java.util.List<User> getPendingSmes() {
