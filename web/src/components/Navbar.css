@@ -84,6 +84,38 @@
   box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
 }
 
+.navbar-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  color: var(--text-secondary, #999);
+}
+
+.logout-btn:hover {
+  color: #ef4444; /* Red color on hover for logout */
+  background: rgba(239, 68, 68, 0.1);
+}
+
 @media (max-width: 1024px) {
   .navbar-links {
     display: none;

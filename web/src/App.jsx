@@ -5,6 +5,8 @@ import RegistrationPage from './pages/RegistrationPage';
 import Dashboard from './pages/Dashboard';
 import PendingPage from './pages/PendingPage';
 import AdminPendingRequests from './pages/AdminPendingRequests';
+import CommunityPage from './pages/CommunityPage';
+import ProfilePage from './pages/ProfilePage';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -27,6 +29,8 @@ function AppContent() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/community" element={<CommunityPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/pending" element={<PendingPage />} />
         <Route path="/admin/pending" element={<AdminPendingRequests />} />
       </Routes>

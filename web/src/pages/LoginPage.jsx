@@ -104,11 +104,11 @@ const LoginPage = () => {
 
           <form className="login-form" onSubmit={handleLogin}>
             <div className="form-group">
-              <label>Institutional Email</label>
+              <label>Email Address</label>
               <input
                 type="email"
                 name="email"
-                placeholder="name@cit.edu"
+                placeholder="name@example.com"
                 value={formData.email}
                 onChange={handleChange}
                 required

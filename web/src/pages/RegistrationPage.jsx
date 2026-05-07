@@ -29,6 +29,13 @@ const RegistrationPage = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     
+    // Strict regex check for standard valid emails (prevents "user@.com" etc.)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setStatusMsg({ type: 'error', text: 'Please enter a valid email address (e.g. yourname@domain.com).' });
+      return;
+    }
+
     // Only enforce @cit.edu for Entrepreneurs (SME)
     if (role === 'SME' && !formData.email.endsWith('@cit.edu')) {
       setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email to register as an Entrepreneur.' });
@@ -120,11 +127,11 @@ const RegistrationPage = () => {
             </div>
 
             <div className="form-group">
-              <label>Institutional Email</label>
+              <label>{role === 'SME' ? 'Institutional Email' : 'Email Address'}</label>
               <input 
                 type="email" 
                 name="email"
-                placeholder="johndoe@cit.edu"
+                placeholder={role === 'SME' ? 'johndoe@cit.edu' : 'johndoe@gmail.com'}
                 value={formData.email}
                 onChange={handleChange}
                 required
