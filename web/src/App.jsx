@@ -3,6 +3,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegistrationPage from './pages/RegistrationPage';
 import Dashboard from './pages/Dashboard';
+import MarketplacePage from './pages/MarketplacePage';
 import PendingPage from './pages/PendingPage';
 import AdminPendingRequests from './pages/AdminPendingRequests';
 import CommunityPage from './pages/CommunityPage';
@@ -30,6 +31,7 @@ function AppContent() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/profile" element={<ProfilePage />} />

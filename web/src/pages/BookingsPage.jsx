@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, Package, Check, X, Clock, ChevronLeft, ChevronRight, Star, MapPin, AlertTriangle } from 'lucide-react';
+import { Calendar, User, Package, Check, X, Clock, ChevronLeft, ChevronRight, Star, MapPin, AlertTriangle, Search, Truck, Map } from 'lucide-react';
 import './BookingsPage.css';
 
 const BookingsPage = () => {
@@ -11,6 +11,7 @@ const BookingsPage = () => {
   const [sentBookings, setSentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 4;
 
   // Modal State
@@ -81,9 +82,37 @@ const BookingsPage = () => {
     } catch (error) { console.error(error); }
   };
 
-  const currentBookings = activeTab === 'received' ? receivedBookings : sentBookings;
-  const paginatedBookings = currentBookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  const totalPages = Math.ceil(currentBookings.length / itemsPerPage);
+  // Logic to separate PENDING requests from Transactions (ACCEPTED/COMPLETED)
+  const currentBookings = (() => {
+    if (activeTab === 'received') {
+      return receivedBookings.filter(b => b.status === 'PENDING' || b.status === 'REJECTED' || b.status === 'CANCELLED');
+    } else if (activeTab === 'sent') {
+      return sentBookings.filter(b => b.status === 'PENDING' || b.status === 'REJECTED' || b.status === 'CANCELLED');
+    } else if (activeTab === 'transactions') {
+      // Transactions are all accepted or completed bookings for this user
+      const acceptedReceived = receivedBookings.filter(b => b.status === 'ACCEPTED' || b.status === 'COMPLETED');
+      const acceptedSent = sentBookings.filter(b => b.status === 'ACCEPTED' || b.status === 'COMPLETED');
+      return [...acceptedReceived, ...acceptedSent].sort((a, b) => b.id - a.id);
+    }
+    return [];
+  })();
+  
+  const filteredBookings = currentBookings.filter(booking => {
+    const query = searchQuery.toLowerCase();
+    const title = (booking.productTitle || booking.title || '').toLowerCase();
+    const category = (booking.category || '').toLowerCase();
+    const userName = activeTab === 'received' 
+      ? (booking.consumerName || '').toLowerCase()
+      : (booking.sellerName || '').toLowerCase();
+    
+    return title.includes(query) || category.includes(query) || userName.includes(query);
+  });
+
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="bookings-layout">
@@ -99,28 +128,49 @@ const BookingsPage = () => {
           </div>
         </header>
 
-        <div className="bookings-tabs-container glass-panel">
-          {(roleId === 1 || roleId === 3) && (
+        <div className="bookings-controls-row">
+          <div className="bookings-tabs-container glass-panel">
+            {(roleId === 1 || roleId === 3) && (
+              <button 
+                className={`tab-btn ${activeTab === 'received' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('received'); setCurrentPage(1); }}
+              >
+                Received Bookings ({receivedBookings.filter(b => b.status === 'PENDING').length})
+              </button>
+            )}
             <button 
-              className={`tab-btn ${activeTab === 'received' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('received'); setCurrentPage(1); }}
+              className={`tab-btn ${activeTab === 'sent' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('sent'); setCurrentPage(1); }}
             >
-              Received Bookings ({receivedBookings.length})
+              Sent Requests ({sentBookings.filter(b => b.status === 'PENDING').length})
             </button>
-          )}
-          <button 
-            className={`tab-btn ${activeTab === 'sent' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('sent'); setCurrentPage(1); }}
-          >
-            Sent Requests ({sentBookings.length})
-          </button>
+            <button 
+              className={`tab-btn ${activeTab === 'transactions' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('transactions'); setCurrentPage(1); }}
+            >
+              Transactions ({[...receivedBookings, ...sentBookings].filter(b => b.status === 'ACCEPTED').length})
+            </button>
+          </div>
+
+          <div className="bookings-search-container glass-panel">
+            <Search size={18} className="search-icon" />
+            <input 
+              type="text" 
+              placeholder="Search by listing title" 
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="bookings-search-input"
+            />
+          </div>
         </div>
 
         <div className="bookings-content">
           {loading ? (
             <div className="status-message">Loading bookings...</div>
-          ) : currentBookings.length === 0 ? (
-            <div className="status-message">No {activeTab} bookings found.</div>
+          ) : filteredBookings.length === 0 ? (
+            <div className="status-message">
+              {searchQuery ? `No results found for "${searchQuery}"` : `No ${activeTab} bookings found.`}
+            </div>
           ) : (
             <>
               <div className="bookings-grid">
@@ -136,7 +186,11 @@ const BookingsPage = () => {
                           <User size={14} style={{ marginRight: '6px' }} />
                           {activeTab === 'received' 
                             ? `From: ${booking.consumerName || 'Customer'}` 
-                            : `To: ${booking.sellerName || 'Owner'}`}
+                            : activeTab === 'sent'
+                              ? `To: ${booking.sellerName || 'Owner'}`
+                              : parseInt(booking.consumerId) === parseInt(userId)
+                                ? `To: ${booking.sellerName || 'Owner'}`
+                                : `From: ${booking.consumerName || 'Customer'}`}
                         </p>
                       </div>
                       <span className={`status-badge status-${(booking.status || 'pending').toLowerCase()}`}>
@@ -167,15 +221,35 @@ const BookingsPage = () => {
                       </div>
                     </div>
 
-                    {booking.message && (
+                    {(booking.status === 'ACCEPTED' || booking.status === 'COMPLETED') && (
+                      <div className="transaction-details-box">
+                        <div className="detail-type-row">
+                          {booking.transactionType === 'MEETUP' ? (
+                            <><Map size={16} /> <strong>Meetup Transaction</strong></>
+                          ) : (
+                            <><Truck size={16} /> <strong>Delivery Transaction</strong></>
+                          )}
+                        </div>
+                        <div className="detail-content">
+                          <span className="detail-label">
+                            {booking.transactionType === 'MEETUP' ? 'Location:' : 'Address:'}
+                          </span>
+                          <span className="detail-value">
+                            {booking.transactionType === 'MEETUP' ? booking.meetupLocation : booking.deliveryAddress}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {booking.message && booking.status === 'PENDING' && (
                       <div className="booking-message-box">
                         <span className="message-label">Message:</span> {booking.message}
                       </div>
                     )}
 
-                    {booking.status === 'PENDING' ? (
-                      <div className="booking-card-actions">
-                        {activeTab === 'received' ? (
+                    <div className="booking-card-actions">
+                      {booking.status === 'PENDING' ? (
+                        activeTab === 'received' ? (
                           <>
                             <button className="action-btn btn-accept" onClick={() => handleUpdateStatus(booking.id, 'ACCEPTED')}>
                               <Check size={16} /> Accept
@@ -193,15 +267,29 @@ const BookingsPage = () => {
                               Cancel Booking
                             </button>
                           </>
-                        )}
-                      </div>
-                    ) : booking.status === 'CANCELLED' ? (
-                      <div className="booking-card-actions cancelled-notice">
-                        <span className="status-message-text">
-                          {activeTab === 'received' ? 'Request has been cancelled by the sender' : 'Booking Cancelled'}
-                        </span>
-                      </div>
-                    ) : null}
+                        )
+                      ) : booking.status === 'ACCEPTED' ? (
+                        parseInt(booking.consumerId) === parseInt(userId) ? (
+                          <button className="action-btn btn-complete" onClick={() => handleUpdateStatus(booking.id, 'COMPLETED')}>
+                            <Check size={16} /> Mark as Completed
+                          </button>
+                        ) : (
+                          <div className="waiting-badge">
+                            <Clock size={16} /> Waiting for sender to complete
+                          </div>
+                        )
+                      ) : booking.status === 'COMPLETED' ? (
+                        <div className="completed-badge">
+                          <Check size={16} /> Transaction Completed
+                        </div>
+                      ) : booking.status === 'CANCELLED' ? (
+                        <div className="cancelled-notice">
+                          <span className="status-message-text">
+                            {activeTab === 'received' ? 'Request has been cancelled by the sender' : 'Booking Cancelled'}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -34,6 +34,11 @@ public class BookingController {
         Product product = productRepository.findById(booking.getProductId()).orElse(null);
         if (product == null) return ResponseEntity.badRequest().body("Product not found");
         
+        // Prevent self-booking
+        if (product.getUserId().equals(booking.getConsumerId())) {
+            return ResponseEntity.badRequest().body("You cannot book your own listing.");
+        }
+        
         booking.setSellerId(product.getUserId());
         Booking saved = bookingRepository.save(booking);
         return ResponseEntity.ok(saved);
@@ -58,6 +63,11 @@ public class BookingController {
             map.put("endDate", booking.getEndDate());
             map.put("status", booking.getStatus());
             map.put("message", booking.getMessage());
+            map.put("consumerId", booking.getConsumerId());
+            map.put("sellerId", booking.getSellerId());
+            map.put("transactionType", booking.getTransactionType());
+            map.put("meetupLocation", booking.getMeetupLocation());
+            map.put("deliveryAddress", booking.getDeliveryAddress());
             map.put("createdAt", booking.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a")));
             return map;
         }).collect(Collectors.toList());
@@ -82,6 +92,11 @@ public class BookingController {
             map.put("endDate", booking.getEndDate());
             map.put("status", booking.getStatus());
             map.put("message", booking.getMessage());
+            map.put("consumerId", booking.getConsumerId());
+            map.put("sellerId", booking.getSellerId());
+            map.put("transactionType", booking.getTransactionType());
+            map.put("meetupLocation", booking.getMeetupLocation());
+            map.put("deliveryAddress", booking.getDeliveryAddress());
             map.put("createdAt", booking.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a")));
             return map;
         }).collect(Collectors.toList());
