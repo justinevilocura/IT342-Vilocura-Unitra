@@ -436,9 +436,41 @@ const Dashboard = () => {
 
               <div className="booking-footer">
                 <button className="btn-outline" onClick={() => setIsBookingOpen(false)}>Cancel</button>
-                <button className="btn-primary" onClick={() => {
-                  alert('Booking request for ' + bookingItem.title + ' submitted!');
-                  setIsBookingOpen(false);
+                <button className="btn-primary" onClick={async () => {
+                  if (!startDate || !endDate) {
+                    alert("Please select both start and end dates.");
+                    return;
+                  }
+                  
+                  try {
+                    const message = document.querySelector('.booking-textarea').value;
+                    const response = await fetch('http://localhost:8080/api/bookings', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        productId: bookingItem.id,
+                        consumerId: parseInt(localStorage.getItem('userId')),
+                        startDate: startDate.toISOString().split('T')[0],
+                        endDate: endDate.toISOString().split('T')[0],
+                        message: message,
+                        status: 'PENDING'
+                      })
+                    });
+
+                    if (response.ok) {
+                      alert('Booking request for ' + bookingItem.title + ' submitted successfully!');
+                      setIsBookingOpen(false);
+                      setStartDate(null);
+                      setEndDate(null);
+                    } else {
+                      const errorText = await response.text();
+                      console.error("Server error during booking:", errorText);
+                      alert('Failed to submit booking: ' + errorText);
+                    }
+                  } catch (error) {
+                    console.error("Network error during booking:", error);
+                    alert('Network error. Please try again.');
+                  }
                 }}>Request Booking</button>
               </div>
             </div>

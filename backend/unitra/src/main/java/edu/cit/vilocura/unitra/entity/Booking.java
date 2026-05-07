@@ -1,0 +1,57 @@
+package edu.cit.vilocura.unitra.entity;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "bookings")
+public class Booking {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "product_id")
+    private Long productId;
+
+    @Column(name = "seller_id")
+    private Long sellerId;
+
+    @Column(name = "consumer_id")
+    private Long consumerId;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String message;
+
+    private String status = "PENDING"; // PENDING, ACCEPTED, REJECTED
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getProductId() { return productId; }
+    public void setProductId(Long productId) { this.productId = productId; }
+    public Long getSellerId() { return sellerId; }
+    public void setSellerId(Long sellerId) { this.sellerId = sellerId; }
+    public Long getConsumerId() { return consumerId; }
+    public void setConsumerId(Long consumerId) { this.consumerId = consumerId; }
+    public LocalDate getStartDate() { return startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}

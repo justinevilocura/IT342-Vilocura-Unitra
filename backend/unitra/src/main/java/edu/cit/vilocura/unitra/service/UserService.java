@@ -93,4 +93,81 @@ public class UserService {
         user.setStatus(status);
         return userRepository.save(user);
     }
+
+    @Autowired
+    private edu.cit.vilocura.unitra.repository.ProfileRepository profileRepository;
+
+    @Autowired
+    private edu.cit.vilocura.unitra.repository.BusinessProfileRepository businessProfileRepository;
+
+    // Profile Management
+    public edu.cit.vilocura.unitra.dto.UserProfileDTO getUserProfile(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        
+        edu.cit.vilocura.unitra.dto.UserProfileDTO dto = new edu.cit.vilocura.unitra.dto.UserProfileDTO();
+        dto.setName(user.getName());
+        
+        if (user.getProfile() != null) {
+            if (user.getProfile().getDisplayName() != null) {
+                dto.setName(user.getProfile().getDisplayName());
+            }
+            dto.setTagline(user.getProfile().getTagline());
+            dto.setBio(user.getProfile().getPersonalBio());
+            dto.setAvatarData(user.getProfile().getAvatarUrl());
+        }
+        
+        if (user.getBusinessProfile() != null) {
+            dto.setCompanyName(user.getBusinessProfile().getCompanyName());
+            dto.setIndustry(user.getBusinessProfile().getIndustry());
+            dto.setBusinessDescription(user.getBusinessProfile().getBusinessDescription());
+            dto.setStreetAddress(user.getBusinessProfile().getStreetAddress());
+            dto.setCity(user.getBusinessProfile().getCity());
+            dto.setProvince(user.getBusinessProfile().getProvince());
+            dto.setContactPhone(user.getBusinessProfile().getContactPhone());
+        }
+        return dto;
+    }
+
+    @Transactional
+    public edu.cit.vilocura.unitra.dto.UserProfileDTO updateUserProfile(Long id, edu.cit.vilocura.unitra.dto.UserProfileDTO updatedData) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (updatedData.getName() != null) {
+            existingUser.setName(updatedData.getName());
+            userRepository.save(existingUser);
+        }
+
+        // Update Personal Profile
+        edu.cit.vilocura.unitra.entity.Profile profile = existingUser.getProfile();
+        if (profile == null) {
+            profile = new edu.cit.vilocura.unitra.entity.Profile();
+            profile.setUser(existingUser);
+        }
+        if (updatedData.getName() != null) profile.setDisplayName(updatedData.getName());
+        if (updatedData.getTagline() != null) profile.setTagline(updatedData.getTagline());
+        if (updatedData.getBio() != null) profile.setPersonalBio(updatedData.getBio());
+        if (updatedData.getAvatarData() != null) profile.setAvatarUrl(updatedData.getAvatarData());
+        profileRepository.save(profile);
+        
+        // Update Business Profile (ONLY for SME Users, assuming roleId == 1 is SME)
+        if (existingUser.getRoleId() != null && existingUser.getRoleId() == 1L) {
+            edu.cit.vilocura.unitra.entity.BusinessProfile businessProfile = existingUser.getBusinessProfile();
+            if (businessProfile == null) {
+                businessProfile = new edu.cit.vilocura.unitra.entity.BusinessProfile();
+                businessProfile.setUser(existingUser);
+            }
+            if (updatedData.getCompanyName() != null) businessProfile.setCompanyName(updatedData.getCompanyName());
+            if (updatedData.getIndustry() != null) businessProfile.setIndustry(updatedData.getIndustry());
+            if (updatedData.getBusinessDescription() != null) businessProfile.setBusinessDescription(updatedData.getBusinessDescription());
+            if (updatedData.getStreetAddress() != null) businessProfile.setStreetAddress(updatedData.getStreetAddress());
+            if (updatedData.getCity() != null) businessProfile.setCity(updatedData.getCity());
+            if (updatedData.getProvince() != null) businessProfile.setProvince(updatedData.getProvince());
+            if (updatedData.getContactPhone() != null) businessProfile.setContactPhone(updatedData.getContactPhone());
+            businessProfileRepository.save(businessProfile);
+        }
+
+        return getUserProfile(id); // Return the newly mapped data
+    }
 }

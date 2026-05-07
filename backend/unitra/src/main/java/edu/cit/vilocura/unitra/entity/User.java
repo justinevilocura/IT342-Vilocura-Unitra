@@ -39,11 +39,23 @@ public class User {
     @Column(name = "role_id")
     private Long roleId;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Profile profile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BusinessProfile businessProfile;
+
     public enum Role {
         SME, CONSUMER, ADMIN
     }
 
     // Getters and Setters
+
+    public Profile getProfile() { return profile; }
+    public void setProfile(Profile profile) { this.profile = profile; }
+
+    public BusinessProfile getBusinessProfile() { return businessProfile; }
+    public void setBusinessProfile(BusinessProfile businessProfile) { this.businessProfile = businessProfile; }
 
     public Long getRoleId() {
         return roleId;

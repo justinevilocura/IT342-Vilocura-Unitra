@@ -578,18 +578,19 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--surface-border);
   border-radius: 10px;
-  color: var(--text-primary);
+  color: #fff;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .pagination-arrow:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
+  transform: translateY(-2px);
 }
 
 .pagination-arrow:disabled {
-  opacity: 0.3;
+  opacity: 0.1;
   cursor: not-allowed;
 }
 

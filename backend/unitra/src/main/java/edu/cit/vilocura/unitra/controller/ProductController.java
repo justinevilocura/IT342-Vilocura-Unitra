@@ -26,4 +26,11 @@ public class ProductController {
         Product savedProduct = productRepository.save(product);
         return ResponseEntity.ok(savedProduct);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        return productRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
