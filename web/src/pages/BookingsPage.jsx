@@ -5,7 +5,7 @@ import './BookingsPage.css';
 const BookingsPage = () => {
   const roleId = parseInt(localStorage.getItem('roleId'));
   const userId = localStorage.getItem('userId');
-  
+
   const [activeTab, setActiveTab] = useState((roleId === 1 || roleId === 3) ? 'received' : 'sent');
   const [receivedBookings, setReceivedBookings] = useState([]);
   const [sentBookings, setSentBookings] = useState([]);
@@ -19,6 +19,15 @@ const BookingsPage = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState(null);
+
+  // Schedule Confirmation State
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [bookingToApprove, setBookingToApprove] = useState(null);
+  const [scheduleData, setScheduleData] = useState({
+    confirmedDate: '',
+    confirmedTime: '',
+    confirmedLocation: ''
+  });
 
   const handleViewListing = async (productId) => {
     try {
@@ -59,7 +68,7 @@ const BookingsPage = () => {
         fetch(`http://localhost:8080/api/bookings/received/${userId}`),
         fetch(`http://localhost:8080/api/bookings/sent/${userId}`)
       ]);
-      
+
       if (receivedRes.ok) setReceivedBookings(await receivedRes.json());
       if (sentRes.ok) setSentBookings(await sentRes.json());
     } catch (error) {
@@ -82,29 +91,83 @@ const BookingsPage = () => {
     } catch (error) { console.error(error); }
   };
 
+  const openScheduleModal = (booking) => {
+    setBookingToApprove(booking);
+    // Pre-fill with preferred values if available
+    setScheduleData({
+      confirmedDate: booking.startDate || '',
+      confirmedTime: '',
+      confirmedLocation: booking.meetupLocation || booking.deliveryAddress || ''
+    });
+    setIsScheduleModalOpen(true);
+  };
+
+  const handleApproveWithSchedule = async () => {
+    if (!scheduleData.confirmedDate || !scheduleData.confirmedTime || !scheduleData.confirmedLocation) {
+      alert("Please fill in all the schedule details.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/bookings/${bookingToApprove.id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'ACCEPTED',
+          confirmedDate: scheduleData.confirmedDate,
+          confirmedTime: scheduleData.confirmedTime,
+          confirmedLocation: scheduleData.confirmedLocation
+        })
+      });
+      if (response.ok) {
+        setIsScheduleModalOpen(false);
+        fetchAllBookings();
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to confirm schedule. Please try again.");
+    }
+  };
+
   // Logic to separate PENDING requests from Transactions (ACCEPTED/COMPLETED)
   const currentBookings = (() => {
     if (activeTab === 'received') {
-      return receivedBookings.filter(b => b.status === 'PENDING' || b.status === 'REJECTED' || b.status === 'CANCELLED');
+      return receivedBookings
+        .filter(b => b.status === 'PENDING' || b.status === 'REJECTED' || b.status === 'CANCELLED')
+        .sort((a, b) => {
+          if (a.status === 'PENDING' && b.status !== 'PENDING') return -1;
+          if (a.status !== 'PENDING' && b.status === 'PENDING') return 1;
+          return b.id - a.id;
+        });
     } else if (activeTab === 'sent') {
-      return sentBookings.filter(b => b.status === 'PENDING' || b.status === 'REJECTED' || b.status === 'CANCELLED');
+      return sentBookings
+        .filter(b => b.status === 'PENDING' || b.status === 'REJECTED' || b.status === 'CANCELLED')
+        .sort((a, b) => {
+          if (a.status === 'PENDING' && b.status !== 'PENDING') return -1;
+          if (a.status !== 'PENDING' && b.status === 'PENDING') return 1;
+          return b.id - a.id;
+        });
     } else if (activeTab === 'transactions') {
       // Transactions are all accepted or completed bookings for this user
       const acceptedReceived = receivedBookings.filter(b => b.status === 'ACCEPTED' || b.status === 'COMPLETED');
       const acceptedSent = sentBookings.filter(b => b.status === 'ACCEPTED' || b.status === 'COMPLETED');
-      return [...acceptedReceived, ...acceptedSent].sort((a, b) => b.id - a.id);
+      return [...acceptedReceived, ...acceptedSent].sort((a, b) => {
+        if (a.status === 'ACCEPTED' && b.status !== 'ACCEPTED') return -1;
+        if (a.status !== 'ACCEPTED' && b.status === 'ACCEPTED') return 1;
+        return b.id - a.id;
+      });
     }
     return [];
   })();
-  
+
   const filteredBookings = currentBookings.filter(booking => {
     const query = searchQuery.toLowerCase();
     const title = (booking.productTitle || booking.title || '').toLowerCase();
     const category = (booking.category || '').toLowerCase();
-    const userName = activeTab === 'received' 
+    const userName = activeTab === 'received'
       ? (booking.consumerName || '').toLowerCase()
       : (booking.sellerName || '').toLowerCase();
-    
+
     return title.includes(query) || category.includes(query) || userName.includes(query);
   });
 
@@ -131,20 +194,20 @@ const BookingsPage = () => {
         <div className="bookings-controls-row">
           <div className="bookings-tabs-container glass-panel">
             {(roleId === 1 || roleId === 3) && (
-              <button 
+              <button
                 className={`tab-btn ${activeTab === 'received' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('received'); setCurrentPage(1); }}
               >
                 Received Bookings ({receivedBookings.filter(b => b.status === 'PENDING').length})
               </button>
             )}
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'sent' ? 'active' : ''}`}
               onClick={() => { setActiveTab('sent'); setCurrentPage(1); }}
             >
               Sent Requests ({sentBookings.filter(b => b.status === 'PENDING').length})
             </button>
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'transactions' ? 'active' : ''}`}
               onClick={() => { setActiveTab('transactions'); setCurrentPage(1); }}
             >
@@ -154,9 +217,9 @@ const BookingsPage = () => {
 
           <div className="bookings-search-container glass-panel">
             <Search size={18} className="search-icon" />
-            <input 
-              type="text" 
-              placeholder="Search by listing title" 
+            <input
+              type="text"
+              placeholder="Search by listing title"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="bookings-search-input"
@@ -184,8 +247,8 @@ const BookingsPage = () => {
                         </div>
                         <p className="booking-user-info">
                           <User size={14} style={{ marginRight: '6px' }} />
-                          {activeTab === 'received' 
-                            ? `From: ${booking.consumerName || 'Customer'}` 
+                          {activeTab === 'received'
+                            ? `From: ${booking.consumerName || 'Customer'}`
                             : activeTab === 'sent'
                               ? `To: ${booking.sellerName || 'Owner'}`
                               : parseInt(booking.consumerId) === parseInt(userId)
@@ -222,37 +285,54 @@ const BookingsPage = () => {
                     </div>
 
                     {(booking.status === 'ACCEPTED' || booking.status === 'COMPLETED') && (
-                      <div className="transaction-details-box">
+                      <div className="transaction-details-box confirmed-schedule-box">
                         <div className="detail-type-row">
-                          {booking.transactionType === 'MEETUP' ? (
-                            <><Map size={16} /> <strong>Meetup Transaction</strong></>
-                          ) : (
-                            <><Truck size={16} /> <strong>Delivery Transaction</strong></>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Check size={18} className="confirmed-icon" />
+                            <strong>OFFICIAL SCHEDULE</strong>
+                          </div>
+                          {parseInt(booking.sellerId) === parseInt(userId) && booking.status === 'ACCEPTED' && (
+                            <button
+                              className="edit-schedule-link"
+                              onClick={(e) => { e.stopPropagation(); openScheduleModal(booking); }}
+                            >
+                              Edit Schedule
+                            </button>
                           )}
                         </div>
-                        <div className="detail-content">
-                          <span className="detail-label">
-                            {booking.transactionType === 'MEETUP' ? 'Location:' : 'Address:'}
-                          </span>
-                          <span className="detail-value">
-                            {booking.transactionType === 'MEETUP' ? booking.meetupLocation : booking.deliveryAddress}
-                          </span>
+                        <div className="confirmed-grid">
+                          <div className="confirmed-item">
+                            <span className="detail-label">Date:</span>
+                            <span className="detail-value">{booking.confirmedDate || 'N/A'}</span>
+                          </div>
+                          <div className="confirmed-item">
+                            <span className="detail-label">Time:</span>
+                            <span className="detail-value">{booking.confirmedTime || 'N/A'}</span>
+                          </div>
+                          <div className="confirmed-item full-width">
+                            <span className="detail-label">Final Location:</span>
+                            <span className="detail-value">{booking.confirmedLocation || 'N/A'}</span>
+                          </div>
+                        </div>
+
+                        <div className="transaction-mode-indicator">
+                          {booking.transactionType === 'MEETUP' ? (
+                            <><Map size={14} /> Meetup Arrangement</>
+                          ) : (
+                            <><Truck size={14} /> Delivery Arrangement</>
+                          )}
                         </div>
                       </div>
                     )}
 
-                    {booking.message && booking.status === 'PENDING' && (
-                      <div className="booking-message-box">
-                        <span className="message-label">Message:</span> {booking.message}
-                      </div>
-                    )}
+
 
                     <div className="booking-card-actions">
                       {booking.status === 'PENDING' ? (
                         activeTab === 'received' ? (
                           <>
-                            <button className="action-btn btn-accept" onClick={() => handleUpdateStatus(booking.id, 'ACCEPTED')}>
-                              <Check size={16} /> Accept
+                            <button className="action-btn btn-accept" onClick={() => openScheduleModal(booking)}>
+                              <Check size={16} /> Accept & Set Schedule
                             </button>
                             <button className="action-btn btn-decline" onClick={() => handleUpdateStatus(booking.id, 'REJECTED')}>
                               <X size={16} /> Decline
@@ -368,8 +448,8 @@ const BookingsPage = () => {
               <div className="details-section">
                 <h3 className="section-label">Description</h3>
                 <p className="section-text">
-                  {selectedProduct.description && selectedProduct.description.startsWith('[') 
-                    ? selectedProduct.description.substring(selectedProduct.description.indexOf(']') + 1).trim() 
+                  {selectedProduct.description && selectedProduct.description.startsWith('[')
+                    ? selectedProduct.description.substring(selectedProduct.description.indexOf(']') + 1).trim()
                     : selectedProduct.description}
                 </p>
               </div>
@@ -378,15 +458,15 @@ const BookingsPage = () => {
 
               <div className="details-pricing-section">
                 <h3 className="section-label">
-                  {selectedProduct.listingType === 'For Sale' ? 'Price / Value' : 
-                   selectedProduct.listingType === 'For Swap' ? 'Swapping For' : 
-                   'Budget'}
+                  {selectedProduct.listingType === 'For Sale' ? 'Price / Value' :
+                    selectedProduct.listingType === 'For Swap' ? 'Swapping For' :
+                      'Budget'}
                 </h3>
                 <div className="details-price-value">
-                  {selectedProduct.listingType === 'For Sale' ? `₱${selectedProduct.price}` : 
-                   selectedProduct.description && selectedProduct.description.includes(':') 
-                    ? selectedProduct.description.substring(selectedProduct.description.indexOf(':') + 1, selectedProduct.description.indexOf(']')).trim()
-                    : selectedProduct.price}
+                  {selectedProduct.listingType === 'For Sale' ? `₱${selectedProduct.price}` :
+                    selectedProduct.description && selectedProduct.description.includes(':')
+                      ? selectedProduct.description.substring(selectedProduct.description.indexOf(':') + 1, selectedProduct.description.indexOf(']')).trim()
+                      : selectedProduct.price}
                 </div>
               </div>
             </div>
@@ -396,6 +476,89 @@ const BookingsPage = () => {
           </div>
         </div>
       )}
+      {/* Schedule Confirmation Modal */}
+      {isScheduleModalOpen && bookingToApprove && (
+        <div className="modal-overlay centered-overlay" onClick={() => setIsScheduleModalOpen(false)}>
+          <div className="modal-content schedule-modal glass-panel" onClick={e => e.stopPropagation()}>
+            <div className="modal-header schedule-header">
+              <div className="header-left">
+                <div className="header-icon-box">
+                  {bookingToApprove.transactionType === 'DELIVERY' ? <Truck size={24} color="#fff" /> : <Calendar size={24} color="#fff" />}
+                </div>
+                <div className="header-text-box">
+                  <h2 className="modal-title">
+                    {bookingToApprove.transactionType === 'DELIVERY' ? 'Finalize Delivery' : 'Finalize Schedule'}
+                  </h2>
+                  <p className="modal-subtitle">
+                    {bookingToApprove.transactionType === 'DELIVERY' ? 'Set the official delivery details' : 'Set the official meeting details'}
+                  </p>
+                </div>
+              </div>
+              <button className="close-btn-circle-v2" onClick={() => setIsScheduleModalOpen(false)}><X size={18} /></button>
+            </div>
+
+            <div className="schedule-body">
+              <div className="preferred-range-card">
+                <Clock size={16} className="preferred-icon" />
+                <div className="preferred-info">
+                  <span className="preferred-label">Sender's Preferred Range</span>
+                  <span className="preferred-value">{bookingToApprove.startDate} to {bookingToApprove.endDate}</span>
+                </div>
+              </div>
+
+              <div className="schedule-form">
+                <div className="form-group-custom">
+                  <label>
+                    <Calendar size={14} color="#fff" />
+                    {bookingToApprove.transactionType === 'DELIVERY' ? ' Official Delivery Date' : ' Official Meetup Date'}
+                  </label>
+                  <input
+                    type="date"
+                    className="custom-schedule-input"
+                    value={scheduleData.confirmedDate}
+                    onChange={(e) => setScheduleData({ ...scheduleData, confirmedDate: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group-custom">
+                  <label>
+                    <Clock size={14} color="#fff" />
+                    {bookingToApprove.transactionType === 'DELIVERY' ? ' Estimated Delivery Time' : ' Official Meetup Time'}
+                  </label>
+                  <input
+                    type="time"
+                    className="custom-schedule-input"
+                    value={scheduleData.confirmedTime}
+                    onChange={(e) => setScheduleData({ ...scheduleData, confirmedTime: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group-custom">
+                  <label>
+                    {bookingToApprove.transactionType === 'DELIVERY' ? <MapPin size={14} color="#fff" /> : <MapPin size={14} color="#fff" />}
+                    {bookingToApprove.transactionType === 'DELIVERY' ? ' Final Delivery Address' : ' Final Meetup Location'}
+                  </label>
+                  <textarea
+                    className="custom-schedule-textarea"
+                    rows="3"
+                    placeholder={bookingToApprove.transactionType === 'DELIVERY' ? "Enter the complete delivery address..." : "Enter the specific venue or address..."}
+                    value={scheduleData.confirmedLocation}
+                    onChange={(e) => setScheduleData({ ...scheduleData, confirmedLocation: e.target.value })}
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div className="schedule-footer">
+              <button className="btn-cancel-flat" onClick={() => setIsScheduleModalOpen(false)}>Back</button>
+              <button className="btn-confirm-action" onClick={handleApproveWithSchedule}>
+                Confirm & Approve Transaction
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Cancel Confirmation Modal */}
       {isCancelModalOpen && (
         <div className="modal-overlay centered-overlay" onClick={() => setIsCancelModalOpen(false)}>

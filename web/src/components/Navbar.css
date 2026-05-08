@@ -112,7 +112,8 @@
 }
 
 .logout-btn:hover {
-  color: #ef4444; /* Red color on hover for logout */
+  color: #ef4444;
+  /* Red color on hover for logout */
   background: rgba(239, 68, 68, 0.1);
 }
 

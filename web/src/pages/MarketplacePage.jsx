@@ -26,6 +26,7 @@ const MarketplacePage = () => {
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isSelfBookingModalOpen, setIsSelfBookingModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -97,6 +98,7 @@ const MarketplacePage = () => {
     return days;
   };
   const [modalError, setModalError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     listingType: 'For Sale',
     category: '',
@@ -157,7 +159,10 @@ const MarketplacePage = () => {
       (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.description || '').toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesType && matchesCategory && matchesSearch;
+    // 0. Availability Filter: Only show products that are not Sold
+    const isNotSold = item.status !== 'Sold';
+
+    return isNotSold && matchesType && matchesCategory && matchesSearch;
   });
 
   return (
@@ -255,7 +260,9 @@ const MarketplacePage = () => {
                   <span className={`tag tag-${(item.listingType || '').toLowerCase().replace(' ', '-')}`}>
                     {item.listingType}
                   </span>
-                  <span className="tag-available">Available</span>
+                  <span className={`status-tag status-${(item.status || 'Available').toLowerCase()}`}>
+                    {item.status || 'Available'}
+                  </span>
                 </div>
 
                 <h3 className="item-title">{item.title}</h3>
@@ -297,7 +304,13 @@ const MarketplacePage = () => {
 
               <div className="card-actions">
                 <button className="btn-outline outline-sm" onClick={() => openDetails(item)}>View Details</button>
-                <button className="btn-primary btn-sm" onClick={() => openBooking(item)}>Book Now</button>
+                <button
+                  className={`btn-primary btn-sm ${item.status && item.status !== 'Available' ? 'btn-disabled' : ''}`}
+                  onClick={() => (!item.status || item.status === 'Available') ? openBooking(item) : null}
+                  disabled={item.status && item.status !== 'Available'}
+                >
+                  {(!item.status || item.status === 'Available') ? 'Book Now' : item.status}
+                </button>
               </div>
             </div>
           ))}
@@ -339,419 +352,474 @@ const MarketplacePage = () => {
           </div>
         )}
 
-        {/* View Details Modal */}
-        {isDetailsOpen && selectedItem && (
-          <div className="modal-overlay centered-overlay" onClick={() => setIsDetailsOpen(false)}>
-            <div className="modal-content details-modal" onClick={e => e.stopPropagation()}>
-              <div className="details-header">
-                <h2 className="details-title">{selectedItem.title}</h2>
-                <button className="details-close-btn" onClick={() => setIsDetailsOpen(false)}><X size={20} /></button>
-              </div>
-              <div className="details-body">
-              
-              <div className="details-tags">
-                <span className={`tag tag-${(selectedItem.listingType || '').toLowerCase().replace(' ', '-')}`}>
+      </main>
+
+      {/* View Details Modal */}
+      {isDetailsOpen && selectedItem && (
+        <div className="modal-overlay centered-overlay" onClick={() => setIsDetailsOpen(false)} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content details-modal" onClick={e => e.stopPropagation()} style={{ background: '#ffffff', color: '#000000', borderRadius: '24px', maxWidth: '500px', width: '90%', padding: '0', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+            <div className="details-header" style={{ padding: '24px 32px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 className="details-title" style={{ margin: '0', fontSize: '1.5rem', fontWeight: '800', color: '#000' }}>{selectedItem.title}</h2>
+              <button className="details-close-btn" onClick={() => setIsDetailsOpen(false)} style={{ background: '#f5f5f5', border: 'none', color: '#666', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            <div className="details-body" style={{ padding: '32px' }}>
+
+              <div className="details-tags" style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                <span className={`tag tag-${(selectedItem.listingType || '').toLowerCase().replace(' ', '-')}`} style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>
                   {selectedItem.listingType}
                 </span>
-                <span className="tag-available">Available</span>
-                <span className="tag-category-outline">{selectedItem.category}</span>
+                <span className={`status-tag status-${(selectedItem.status || 'Available').toLowerCase()}`} style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700' }}>
+                  {selectedItem.status || 'Available'}
+                </span>
+                <span className="tag-category-outline" style={{ background: '#f5f5f5', color: '#666', border: '1px solid #eee', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem' }}>{selectedItem.category}</span>
               </div>
 
-              <div className="details-meta-list">
-                <div className="meta-info-item"><Star size={16} /> Seller</div>
-                <div className="meta-info-item"><MapPin size={16} /> {selectedItem.location}</div>
-                <div className="meta-info-item"><Calendar size={16} /> Posted {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleDateString() : 'Just now'}</div>
+              <div className="details-meta-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                <div className="meta-info-item" style={{ color: '#666', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}><Star size={16} /> Seller</div>
+                <div className="meta-info-item" style={{ color: '#666', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}><MapPin size={16} /> {selectedItem.location}</div>
+                <div className="meta-info-item" style={{ color: '#666', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}><Calendar size={16} /> Posted {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleDateString() : 'Just now'}</div>
               </div>
 
-              <div className="details-divider"></div>
+              <div style={{ height: '1px', background: '#eee', margin: '24px 0' }}></div>
 
               <div className="details-section">
-                <h3 className="section-label">Description</h3>
-                <p className="section-text">
-                  {selectedItem.description && selectedItem.description.startsWith('[') 
-                    ? selectedItem.description.substring(selectedItem.description.indexOf(']') + 1).trim() 
+                <h3 className="section-label" style={{ color: '#999', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', fontWeight: '800' }}>Description</h3>
+                <p className="section-text" style={{ color: '#333', lineHeight: '1.6', margin: '0' }}>
+                  {selectedItem.description && selectedItem.description.startsWith('[')
+                    ? selectedItem.description.substring(selectedItem.description.indexOf(']') + 1).trim()
                     : selectedItem.description}
                 </p>
               </div>
 
-              <div className="details-divider"></div>
+              <div style={{ height: '1px', background: '#eee', margin: '24px 0' }}></div>
 
               <div className="details-section">
-                <h3 className="section-label">
-                  {selectedItem.listingType === 'For Sale' ? 'Price / Value' : 
-                   selectedItem.listingType === 'For Swap' ? 'Swapping For' : 
-                   'Budget'}
+                <h3 className="section-label" style={{ color: '#999', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', fontWeight: '800' }}>
+                  {selectedItem.listingType === 'For Sale' ? 'Price / Value' :
+                    selectedItem.listingType === 'For Swap' ? 'Swapping For' :
+                      'Budget'}
                 </h3>
-                <div className="details-price-value">
+                <div className="details-price-value" style={{ marginTop: '12px' }}>
                   {selectedItem.listingType === 'For Sale' ? (
-                    <span className="swap-requirement-text">₱{selectedItem.price}</span>
+                    <span className="swap-requirement-text" style={{ color: '#000000', fontSize: '2.5rem', fontWeight: '800', display: 'block' }}>₱{selectedItem.price}</span>
                   ) : (
-                    <span className="swap-requirement-text">
-                      {selectedItem.description && selectedItem.description.includes(':') 
+                    <span className="swap-requirement-text" style={{ color: '#000000', fontSize: '2.5rem', fontWeight: '800', display: 'block' }}>
+                      {selectedItem.description && selectedItem.description.includes(':') && selectedItem.description.includes(']')
                         ? selectedItem.description.substring(selectedItem.description.indexOf(':') + 1, selectedItem.description.indexOf(']')).trim()
-                        : selectedItem.price}
+                        : (selectedItem.price && selectedItem.price !== 0 ? `₱${selectedItem.price}` : 'Specific Item / Exchange')}
                     </span>
                   )}
                 </div>
               </div>
-              </div>
-
-              <div className="details-footer">
-                <button className="btn-outline" onClick={() => setIsDetailsOpen(false)}>Close</button>
-                {parseInt(selectedItem.userId) === parseInt(userId) ? (
-                  <div className="own-listing-notice">
-                    This is your listing
-                  </div>
-                ) : (
-                  <button className="btn-primary" onClick={() => openBooking(selectedItem)}>Request Booking</button>
-                )}
-              </div>
             </div>
-          </div>
-        )}
 
-        {/* Request Booking Modal */}
-        {isBookingOpen && bookingItem && (
-          <div className="modal-overlay centered-overlay" onClick={() => setIsBookingOpen(false)}>
-            <div className="modal-content booking-popup" onClick={e => e.stopPropagation()}>
-              <div className="booking-header">
-                <div className="booking-title-row">
-                  <h2 className="booking-title">Request Booking</h2>
-                  <button className="details-close-btn" onClick={() => setIsBookingOpen(false)}><X size={20} /></button>
+            <div className="details-footer" style={{ padding: '24px 32px', background: '#f9f9f9', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end', gap: '12px', alignItems: 'center' }}>
+              <button className="btn-outline" onClick={() => setIsDetailsOpen(false)} style={{ borderRadius: '12px', padding: '10px 20px', border: '1px solid #ddd', color: '#666', background: '#fff' }}>Close</button>
+              {parseInt(selectedItem.userId) === parseInt(userId) ? (
+                <div className="own-listing-notice" style={{ background: '#f5f5f5', color: '#999', padding: '10px 20px', borderRadius: '12px', fontWeight: '700' }}>
+                  This is your listing
                 </div>
-                <p className="booking-subtitle">Book "{bookingItem.title}" for the selected dates</p>
-              </div>
-              <div className="booking-body">
-                {/* Start Date Section */}
-                <div className="date-section">
-                  <label className="section-label">Start Date</label>
-                  <div className="date-display-box">
-                    <Calendar size={16} /> <span>{startDate ? startDate.toLocaleDateString() : "Select start date"}</span>
-                  </div>
-                  <div className="calendar-widget">
-                    <div className="calendar-header">
-                      <span>{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
-                      <div className="calendar-nav">
-                        <ChevronLeft size={14} onClick={() => changeMonth(-1)} style={{ cursor: 'pointer' }} />
-                        <ChevronRight size={14} onClick={() => changeMonth(1)} style={{ cursor: 'pointer' }} />
-                      </div>
-                    </div>
-                    <div className="calendar-grid">
-                      <div className="day-name">Mo</div><div className="day-name">Tu</div><div className="day-name">We</div><div className="day-name">Th</div><div className="day-name">Fr</div><div className="day-name">Sa</div><div className="day-name">Su</div>
-                      {renderCalendarDays()}
-                    </div>
-                  </div>
-                </div>
-
-                {/* End Date Section */}
-                <div className="date-section">
-                  <label className="section-label">End Date</label>
-                  <div className="date-display-box">
-                    <Calendar size={16} /> <span>{endDate ? endDate.toLocaleDateString() : "Select end date"}</span>
-                  </div>
-                </div>
-
-                <div className="message-section">
-                  <label className="section-label">Message (optional)</label>
-                  <textarea className="booking-textarea" placeholder="Add any special requests or information..."></textarea>
-                </div>
-
-                <div className="transaction-section">
-                  <label className="section-label">Transaction Mode</label>
-                  <div className="transaction-modes">
-                    <label className={`mode-option ${transactionType === 'MEETUP' ? 'active' : ''}`}>
-                      <input 
-                        type="radio" 
-                        name="transactionType" 
-                        value="MEETUP" 
-                        checked={transactionType === 'MEETUP'} 
-                        onChange={(e) => setTransactionType(e.target.value)} 
-                      />
-                      <span>Meetup</span>
-                    </label>
-                    <label className={`mode-option ${transactionType === 'DELIVERY' ? 'active' : ''}`}>
-                      <input 
-                        type="radio" 
-                        name="transactionType" 
-                        value="DELIVERY" 
-                        checked={transactionType === 'DELIVERY'} 
-                        onChange={(e) => setTransactionType(e.target.value)} 
-                      />
-                      <span>Delivery</span>
-                    </label>
-                  </div>
-                </div>
-
-                {transactionType === 'MEETUP' ? (
-                  <div className="form-group">
-                    <label className="section-label">Meetup Location</label>
-                    <input 
-                      type="text" 
-                      className="form-input" 
-                      placeholder="Enter specific meetup location" 
-                      value={meetupLocation}
-                      onChange={(e) => setMeetupLocation(e.target.value)}
-                    />
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label className="section-label">Delivery Address</label>
-                    <textarea 
-                      className="form-input" 
-                      placeholder="Enter your complete delivery address" 
-                      rows="2"
-                      value={deliveryAddress}
-                      onChange={(e) => setDeliveryAddress(e.target.value)}
-                    ></textarea>
-                  </div>
-                )}
-              </div>
-
-              <div className="booking-footer">
-                <button className="btn-outline" onClick={() => setIsBookingOpen(false)}>Cancel</button>
-                <button className="btn-primary" onClick={async () => {
-                  if (!startDate || !endDate) {
-                    alert("Please select both start and end dates.");
-                    return;
-                  }
-
-                  if (transactionType === 'MEETUP' && !meetupLocation) {
-                    alert("Please provide a meetup location.");
-                    return;
-                  }
-
-                  if (transactionType === 'DELIVERY' && !deliveryAddress) {
-                    alert("Please provide a delivery address.");
-                    return;
-                  }
-                  
-                  try {
-                    const message = document.querySelector('.booking-textarea').value;
-                    const response = await fetch('http://localhost:8080/api/bookings', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        productId: bookingItem.id,
-                        consumerId: parseInt(localStorage.getItem('userId')),
-                        startDate: startDate.toISOString().split('T')[0],
-                        endDate: endDate.toISOString().split('T')[0],
-                        message: message,
-                        transactionType: transactionType,
-                        meetupLocation: transactionType === 'MEETUP' ? meetupLocation : null,
-                        deliveryAddress: transactionType === 'DELIVERY' ? deliveryAddress : null,
-                        status: 'PENDING'
-                      })
-                    });
-
-                    if (response.ok) {
-                      alert('Booking request for ' + bookingItem.title + ' submitted successfully!');
-                      setIsBookingOpen(false);
-                      setStartDate(null);
-                      setEndDate(null);
-                      setMeetupLocation('');
-                      setDeliveryAddress('');
-                    } else {
-                      const errorText = await response.text();
-                      console.error("Server error during booking:", errorText);
-                      if (errorText.includes("own listing")) {
-                        setIsSelfBookingModalOpen(true);
-                        setIsBookingOpen(false);
-                      } else {
-                        alert('Failed to submit booking: ' + errorText);
-                      }
-                    }
-                  } catch (error) {
-                    console.error("Network error during booking:", error);
-                    alert('Network error. Please try again.');
-                  }
-                }}>Request Booking</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Create New Listing Modal */}
-        {isModalOpen && (
-          <div className="modal-overlay centered-overlay" onClick={() => { setIsModalOpen(false); setModalError(''); }}>
-            <div className="modal-content add-listing-popup" onClick={e => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2 className="modal-title">Create New Listing</h2>
-                <button className="close-btn" onClick={() => { setIsModalOpen(false); setModalError(''); }}><X size={24} /></button>
-              </div>
-
-              {modalError && (
-                <div className="modal-error-banner">
-                  {modalError}
-                </div>
+              ) : (
+                <button
+                  className={`btn-primary ${selectedItem.status && selectedItem.status !== 'Available' ? 'btn-disabled' : ''}`}
+                  onClick={() => (!selectedItem.status || selectedItem.status === 'Available') ? openBooking(selectedItem) : null}
+                  style={{ borderRadius: '12px', padding: '10px 30px', background: (!selectedItem.status || selectedItem.status === 'Available') ? '#000' : '#ccc', color: '#fff', fontWeight: '800', border: 'none', cursor: (!selectedItem.status || selectedItem.status === 'Available') ? 'pointer' : 'not-allowed' }}
+                  disabled={selectedItem.status && selectedItem.status !== 'Available'}
+                >
+                  {(!selectedItem.status || selectedItem.status === 'Available') ? 'Request Booking' : `Currently ${selectedItem.status}`}
+                </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
 
-              <form className="modal-form">
-                <div className="form-group">
-                  <label>Listing Type</label>
-                  <div className="radio-group-vertical">
-                    <label className="radio-classic">
-                      <input type="radio" name="listingType" value="For Sale" checked={formData.listingType === 'For Sale'} onChange={(e) => setFormData({ ...formData, listingType: e.target.value })} />
-                      Sale
-                    </label>
-                    <label className="radio-classic">
-                      <input type="radio" name="listingType" value="For Swap" checked={formData.listingType === 'For Swap'} onChange={(e) => setFormData({ ...formData, listingType: e.target.value })} />
-                      Swap
-                    </label>
-                    <label className="radio-classic">
-                      <input type="radio" name="listingType" value="Looking to Buy" checked={formData.listingType === 'Looking to Buy'} onChange={(e) => setFormData({ ...formData, listingType: e.target.value })} />
-                      Wanted
-                    </label>
+      {/* Request Booking Modal */}
+      {isBookingOpen && bookingItem && (
+        <div className="modal-overlay centered-overlay" onClick={() => setIsBookingOpen(false)}>
+          <div className="modal-content booking-popup" onClick={e => e.stopPropagation()}>
+            <div className="booking-header">
+              <div className="booking-title-row">
+                <h2 className="booking-title">Request Booking</h2>
+                <button className="details-close-btn" onClick={() => setIsBookingOpen(false)}><X size={20} /></button>
+              </div>
+              <p className="booking-subtitle">Book "{bookingItem.title}" for the selected dates</p>
+            </div>
+            <div className="booking-body">
+              {/* Start Date Section */}
+              <div className="date-section">
+                <label className="section-label">Start Date</label>
+                <div className="date-display-box">
+                  <Calendar size={16} /> <span>{startDate ? startDate.toLocaleDateString() : "Select start date"}</span>
+                </div>
+                <div className="calendar-widget">
+                  <div className="calendar-header">
+                    <span>{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                    <div className="calendar-nav">
+                      <ChevronLeft size={14} onClick={() => changeMonth(-1)} style={{ cursor: 'pointer' }} />
+                      <ChevronRight size={14} onClick={() => changeMonth(1)} style={{ cursor: 'pointer' }} />
+                    </div>
+                  </div>
+                  <div className="calendar-grid">
+                    <div className="day-name">Mo</div><div className="day-name">Tu</div><div className="day-name">We</div><div className="day-name">Th</div><div className="day-name">Fr</div><div className="day-name">Sa</div><div className="day-name">Su</div>
+                    {renderCalendarDays()}
                   </div>
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label>Category</label>
-                  <select className="form-input custom-select" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
-                    <option value="" disabled>Select a category</option>
-                    <option value="Office & Business Supplies">Office & Business Supplies</option>
-                    <option value="Electronics & Tech">Electronics & Tech</option>
-                    <option value="Fashion & Apparel">Fashion & Apparel</option>
-                    <option value="Health & Beauty">Health & Beauty</option>
-                    <option value="Home & Lifestyle">Home & Lifestyle</option>
-                    <option value="Automotive & Transport">Automotive & Transport</option>
-                    <option value="Other">Other</option>
-                  </select>
+              {/* End Date Section */}
+              <div className="date-section">
+                <label className="section-label">End Date</label>
+                <div className="date-display-box">
+                  <Calendar size={16} /> <span>{endDate ? endDate.toLocaleDateString() : "Select end date"}</span>
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label>Title</label>
-                  <input type="text" className="form-input" placeholder="Enter item title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
-                </div>
 
-                <div className="form-group">
-                  <label>Description</label>
-                  <textarea className="form-input" placeholder="Describe your item in details..." rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}></textarea>
-                </div>
 
-                <div className="form-group">
-                  <label>
-                    {formData.listingType === 'For Sale' ? 'Price / Value (₱)' :
-                      formData.listingType === 'For Swap' ? 'Swapping For' :
-                        'Looking For'}
+              <div className="transaction-section">
+                <label className="section-label">Transaction Mode</label>
+                <div className="transaction-modes">
+                  <label className={`mode-option ${transactionType === 'MEETUP' ? 'active' : ''}`}>
+                    <input
+                      type="radio"
+                      name="transactionType"
+                      value="MEETUP"
+                      checked={transactionType === 'MEETUP'}
+                      onChange={(e) => setTransactionType(e.target.value)}
+                    />
+                    <span>Meetup</span>
                   </label>
+                  <label className={`mode-option ${transactionType === 'DELIVERY' ? 'active' : ''}`}>
+                    <input
+                      type="radio"
+                      name="transactionType"
+                      value="DELIVERY"
+                      checked={transactionType === 'DELIVERY'}
+                      onChange={(e) => setTransactionType(e.target.value)}
+                    />
+                    <span>Delivery</span>
+                  </label>
+                </div>
+              </div>
+
+              {transactionType === 'MEETUP' ? (
+                <div className="form-group">
+                  <label className="section-label">Meetup Location</label>
                   <input
-                    type={formData.listingType === 'For Sale' ? 'number' : 'text'}
+                    type="text"
                     className="form-input"
-                    placeholder={
-                      formData.listingType === 'For Sale' ? 'Enter amount' :
-                        formData.listingType === 'For Swap' ? 'What are you looking to swap with?' :
-                          'What are you looking for?'
-                    }
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    min={formData.listingType === 'For Sale' ? "0" : undefined}
-                    step={formData.listingType === 'For Sale' ? "0.01" : undefined}
+                    placeholder="Enter specific meetup location"
+                    value={meetupLocation}
+                    onChange={(e) => setMeetupLocation(e.target.value)}
                   />
                 </div>
-
-                <div className="form-row">
-                  <div className="form-group half">
-                    <label>Your Name</label>
-                    <input type="text" className="form-input" placeholder="Enter your name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                  </div>
-                  <div className="form-group half">
-                    <label>Company</label>
-                    <input type="text" className="form-input" placeholder="Enter company name" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} />
-                  </div>
-                </div>
-
+              ) : (
                 <div className="form-group">
-                  <label>Location</label>
-                  <input type="text" className="form-input" placeholder="City, State" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
+                  <label className="section-label">Delivery Address</label>
+                  <textarea
+                    className="booking-textarea"
+                    placeholder="Enter your complete delivery address"
+                    rows="3"
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                  ></textarea>
                 </div>
+              )}
+            </div>
 
-                <div className="form-group">
-                  <label>Product Image</label>
-                  <div className="custom-upload-box" onClick={() => document.getElementById('product-image-up').click()}>
-                    <Upload size={20} />
-                    <span>{formData.imageData ? "Image Selected (Click to change)" : "Select image of your product"}</span>
-                    <input
-                      type="file"
-                      id="product-image-up"
-                      style={{ display: 'none' }}
-                      onChange={handleImageUpload}
-                      accept="image/*"
-                    />
-                  </div>
-                  {formData.imageData && (
-                    <div className="preview-container">
-                      <img src={formData.imageData} alt="Preview" className="upload-preview" />
-                    </div>
-                  )}
-                </div>
+            <div className="booking-footer">
+              <button className="btn-outline" onClick={() => setIsBookingOpen(false)}>Cancel</button>
+              <button className="btn-primary" onClick={async () => {
+                if (!startDate || !endDate) {
+                  alert("Please select both start and end dates.");
+                  return;
+                }
 
-                <div className="modal-actions-centered">
-                  <button type="button" className="btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                  <button type="button" className="btn-primary" onClick={async () => {
-                    // Validation: Check if all required fields are filled
-                    const requiredFields = ['category', 'title', 'description', 'price', 'name', 'company', 'location', 'imageData'];
-                    const missingFields = requiredFields.filter(field => !formData[field]);
+                if (transactionType === 'MEETUP' && !meetupLocation) {
+                  alert("Please provide a meetup location.");
+                  return;
+                }
 
-                    if (missingFields.length > 0) {
-                      setModalError('Please fill out all fields and upload an image.');
-                      return;
+                if (transactionType === 'DELIVERY' && !deliveryAddress) {
+                  alert("Please provide a delivery address.");
+                  return;
+                }
+
+                try {
+
+                  const response = await fetch('http://localhost:8080/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      productId: bookingItem.id,
+                      consumerId: parseInt(localStorage.getItem('userId')),
+                      startDate: startDate.toISOString().split('T')[0],
+                      endDate: endDate.toISOString().split('T')[0],
+
+                      transactionType: transactionType,
+                      meetupLocation: transactionType === 'MEETUP' ? meetupLocation : null,
+                      deliveryAddress: transactionType === 'DELIVERY' ? deliveryAddress : null,
+                      status: 'PENDING'
+                    })
+                  });
+
+                  if (response.ok) {
+                    setIsBookingOpen(false);
+                    setIsSuccessModalOpen(true);
+                    setStartDate(null);
+                    setEndDate(null);
+                    setMeetupLocation('');
+                    setDeliveryAddress('');
+                  } else {
+                    const errorText = await response.text();
+                    console.error("Server error during booking:", errorText);
+                    if (errorText.includes("own listing")) {
+                      setIsSelfBookingModalOpen(true);
+                      setIsBookingOpen(false);
+                    } else {
+                      alert('Failed to submit booking: ' + errorText);
                     }
-
-                    if (formData.listingType === 'For Sale' && (isNaN(formData.price) || parseFloat(formData.price) < 0)) {
-                      setModalError('Please enter a valid numeric price.');
-                      return;
-                    }
-
-                    setModalError(''); // Clear error before submission
-
-                    try {
-                      const payload = {
-                        ...formData,
-                        userId: localStorage.getItem('userId') || 1, // fallback to avoid constraint errors
-                        price: formData.listingType === 'For Sale' ? parseFloat(formData.price) : 0,
-                        description: formData.listingType === 'For Sale' ? formData.description : `[${formData.listingType === 'For Swap' ? 'SWAP' : 'WANTED'}: ${formData.price}] ${formData.description}`
-                      };
-                      const res = await fetch('http://localhost:8080/api/products', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                      });
-                      if (res.ok) {
-                        setIsModalOpen(false);
-                        setModalError('');
-                        setFormData({ listingType: 'For Sale', category: '', title: '', description: '', price: '', name: '', company: '', location: '', imageData: '' });
-                        fetchListings(); // automatically refresh the board
-                      } else {
-                        const errorText = await res.text();
-                        setModalError('Error saving listing: ' + errorText);
-                        console.error("Backend error:", errorText);
-                      }
-                    } catch (e) {
-                      setModalError('Network error. Please try again.');
-                      console.error("Error creating listing", e);
-                    }
-                  }}>Create Listing</button>
-                </div>
-              </form>
+                  }
+                } catch (error) {
+                  console.error("Network error during booking:", error);
+                  alert('Network error. Please try again.');
+                }
+              }}>Request Booking</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {isSelfBookingModalOpen && (
-          <div className="modal-overlay centered-overlay" onClick={() => setIsSelfBookingModalOpen(false)}>
-            <div className="modal-content self-booking-modal" onClick={e => e.stopPropagation()}>
-              <div className="confirm-icon-wrapper">
-                <AlertTriangle size={32} color="#ef4444" />
+      {/* Success Booking Modal */}
+      {isSuccessModalOpen && (
+        <div className="modal-overlay centered-overlay" onClick={() => setIsSuccessModalOpen(false)}>
+          <div className="modal-content success-popup glass-panel" onClick={e => e.stopPropagation()}>
+            <div className="success-icon-wrapper">
+              <div className="success-icon-bg">
+                <CheckCircle2 size={48} color="#22c55e" />
               </div>
-              <h2 className="confirm-title">Invalid Action</h2>
-              <p className="confirm-text">You cannot book your own listing. Please browse other marketplace items for transactions.</p>
-              <div className="confirm-actions">
-                <button className="btn-primary" style={{ width: '100%' }} onClick={() => setIsSelfBookingModalOpen(false)}>Got it</button>
-              </div>
+              <div className="success-glow"></div>
+            </div>
+
+            <h2 className="success-title">Booking Requested!</h2>
+            <p className="success-description">
+              Your request for <strong>{bookingItem?.title}</strong> has been sent to the SME.
+              You'll be notified once they finalize the schedule.
+            </p>
+
+            <div className="success-actions">
+              <button className="btn-secondary-outline" onClick={() => setIsSuccessModalOpen(false)}>
+                Back to Marketplace
+              </button>
+              <button className="btn-primary-success" onClick={() => navigate('/bookings')}>
+                View My Bookings
+              </button>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
+
+      {/* Create New Listing Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay centered-overlay" onClick={() => { setIsModalOpen(false); setModalError(''); }}>
+          <div className="modal-content add-listing-popup" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Create New Listing</h2>
+              <button className="close-btn" onClick={() => { setIsModalOpen(false); setModalError(''); }}><X size={24} /></button>
+            </div>
+
+            {modalError && (
+              <div className="modal-error-banner">
+                {modalError}
+              </div>
+            )}
+
+            <form className="modal-form">
+              <div className="form-group">
+                <label>Listing Type</label>
+                <div className="radio-group-vertical">
+                  <label className="radio-classic">
+                    <input type="radio" name="listingType" value="For Sale" checked={formData.listingType === 'For Sale'} onChange={(e) => setFormData({ ...formData, listingType: e.target.value })} />
+                    Sale
+                  </label>
+                  <label className="radio-classic">
+                    <input type="radio" name="listingType" value="For Swap" checked={formData.listingType === 'For Swap'} onChange={(e) => setFormData({ ...formData, listingType: e.target.value })} />
+                    Swap
+                  </label>
+                  <label className="radio-classic">
+                    <input type="radio" name="listingType" value="Looking to Buy" checked={formData.listingType === 'Looking to Buy'} onChange={(e) => setFormData({ ...formData, listingType: e.target.value })} />
+                    Wanted
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Category</label>
+                <select className="form-input custom-select" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
+                  <option value="" disabled>Select a category</option>
+                  <option value="Office & Business Supplies">Office & Business Supplies</option>
+                  <option value="Electronics & Tech">Electronics & Tech</option>
+                  <option value="Fashion & Apparel">Fashion & Apparel</option>
+                  <option value="Health & Beauty">Health & Beauty</option>
+                  <option value="Home & Lifestyle">Home & Lifestyle</option>
+                  <option value="Automotive & Transport">Automotive & Transport</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Title</label>
+                <input type="text" className="form-input" placeholder="Enter item title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea className="form-input" placeholder="Describe your item in details..." rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}></textarea>
+              </div>
+
+              <div className="form-group">
+                <label>
+                  {formData.listingType === 'For Sale' ? 'Price / Value (₱)' :
+                    formData.listingType === 'For Swap' ? 'Swapping For' :
+                      'Looking For'}
+                </label>
+                <input
+                  type={formData.listingType === 'For Sale' ? 'number' : 'text'}
+                  className="form-input"
+                  placeholder={
+                    formData.listingType === 'For Sale' ? 'Enter amount' :
+                      formData.listingType === 'For Swap' ? 'What are you looking to swap with?' :
+                        'What are you looking for?'
+                  }
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  min={formData.listingType === 'For Sale' ? "0" : undefined}
+                  step={formData.listingType === 'For Sale' ? "0.01" : undefined}
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group half">
+                  <label>Your Name</label>
+                  <input type="text" className="form-input" placeholder="Enter your name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                </div>
+                <div className="form-group half">
+                  <label>Company</label>
+                  <input type="text" className="form-input" placeholder="Enter company name" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Location</label>
+                <input type="text" className="form-input" placeholder="City, State" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
+              </div>
+
+              <div className="form-group">
+                <label>Product Image</label>
+                <div className="custom-upload-box" onClick={() => document.getElementById('product-image-up').click()}>
+                  <Upload size={20} />
+                  <span>{formData.imageData ? "Image Selected (Click to change)" : "Select image of your product"}</span>
+                  <input
+                    type="file"
+                    id="product-image-up"
+                    style={{ display: 'none' }}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                  />
+                </div>
+                {formData.imageData && (
+                  <div className="preview-container">
+                    <img src={formData.imageData} alt="Preview" className="upload-preview" />
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-actions-centered">
+                <button type="button" className="btn-outline" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>Cancel</button>
+                <button type="button" className="btn-primary" disabled={isSubmitting} onClick={async () => {
+                  // Validation: Check if all required fields are filled
+                  const requiredFields = ['category', 'title', 'description', 'price', 'name', 'company', 'location', 'imageData'];
+                  const missingFields = requiredFields.filter(field => !formData[field]);
+
+                  if (missingFields.length > 0) {
+                    setModalError('Please fill out all fields and upload an image.');
+                    return;
+                  }
+
+                  if (formData.listingType === 'For Sale' && (isNaN(formData.price) || parseFloat(formData.price) < 0)) {
+                    setModalError('Please enter a valid numeric price.');
+                    return;
+                  }
+
+                  // DUPLICATION CHECK: Prevent user from listing the same product twice
+                  const isDuplicate = items.some(item =>
+                    item.title.trim().toLowerCase() === formData.title.trim().toLowerCase() &&
+                    item.category === formData.category &&
+                    parseInt(item.userId) === parseInt(userId)
+                  );
+
+                  if (isDuplicate) {
+                    setModalError('Duplicate Error: You already have an active listing for this product in the ' + formData.category + ' category.');
+                    return;
+                  }
+
+                  setModalError(''); // Clear error before submission
+                  setIsSubmitting(true); // Disable button to prevent double-clicks
+
+                  try {
+                    const payload = {
+                      ...formData,
+                      userId: localStorage.getItem('userId') || 1, // fallback to avoid constraint errors
+                      price: formData.listingType === 'For Sale' ? parseFloat(formData.price) : 0,
+                      description: formData.listingType === 'For Sale' ? formData.description : `[${formData.listingType === 'For Swap' ? 'SWAP' : 'WANTED'}: ${formData.price}] ${formData.description}`
+                    };
+                    const res = await fetch('http://localhost:8080/api/products', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                      setIsModalOpen(false);
+                      setModalError('');
+                      setFormData({ listingType: 'For Sale', category: '', title: '', description: '', price: '', name: '', company: '', location: '', imageData: '' });
+                      // Add a small delay to allow DB to propagate before fetching
+                      setTimeout(() => {
+                        fetchListings();
+                        setIsSubmitting(false);
+                      }, 500);
+                    } else {
+                      const errorText = await res.text();
+                      setModalError('Error saving listing: ' + errorText);
+                      console.error("Backend error:", errorText);
+                      setIsSubmitting(false);
+                    }
+                  } catch (e) {
+                    setModalError('Network error. Please try again.');
+                    console.error("Error creating listing", e);
+                    setIsSubmitting(false);
+                  }
+                }}>{isSubmitting ? 'Creating...' : 'Create Listing'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isSelfBookingModalOpen && (
+        <div className="modal-overlay centered-overlay" onClick={() => setIsSelfBookingModalOpen(false)}>
+          <div className="modal-content self-booking-modal" onClick={e => e.stopPropagation()}>
+            <div className="confirm-icon-wrapper">
+              <AlertTriangle size={32} color="#ef4444" />
+            </div>
+            <h2 className="confirm-title">Invalid Action</h2>
+            <p className="confirm-text">You cannot book your own listing. Please browse other marketplace items for transactions.</p>
+            <div className="confirm-actions">
+              <button className="btn-primary" style={{ width: '100%' }} onClick={() => setIsSelfBookingModalOpen(false)}>Got it</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

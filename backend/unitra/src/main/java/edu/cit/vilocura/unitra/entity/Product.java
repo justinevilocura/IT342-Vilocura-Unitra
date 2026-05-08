@@ -51,6 +51,9 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "status")
+    private String status = "Available"; // Available, Pending, Booked
+
     @Transient
     private String authorName;
 
@@ -108,6 +111,9 @@ public class Product {
     
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     
     public String getAuthorName() { return authorName; }
     public void setAuthorName(String authorName) { this.authorName = authorName; }

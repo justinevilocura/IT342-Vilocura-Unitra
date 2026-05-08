@@ -32,15 +32,27 @@ public class BookingController {
     public ResponseEntity<?> createBooking(@RequestBody Booking booking) {
         // Fetch product to get the seller ID
         Product product = productRepository.findById(booking.getProductId()).orElse(null);
-        if (product == null) return ResponseEntity.badRequest().body("Product not found");
-        
+        if (product == null)
+            return ResponseEntity.badRequest().body("Product not found");
+
         // Prevent self-booking
         if (product.getUserId().equals(booking.getConsumerId())) {
             return ResponseEntity.badRequest().body("You cannot book your own listing.");
         }
-        
+
+        // Check if product is available (handle null as Available)
+        if (product.getStatus() != null && !"Available".equalsIgnoreCase(product.getStatus())) {
+            return ResponseEntity.badRequest()
+                    .body("This product is currently " + product.getStatus() + " and cannot be booked.");
+        }
+
         booking.setSellerId(product.getUserId());
         Booking saved = bookingRepository.save(booking);
+
+        // Update product status to Pending
+        product.setStatus("Pending");
+        productRepository.save(product);
+
         return ResponseEntity.ok(saved);
     }
 
@@ -49,7 +61,7 @@ public class BookingController {
         return bookingRepository.findBySellerIdOrderByCreatedAtDesc(sellerId).stream().map(booking -> {
             Product product = productRepository.findById(booking.getProductId()).orElse(null);
             User consumer = userRepository.findById(booking.getConsumerId()).orElse(null);
-            
+
             Map<String, Object> map = new java.util.HashMap<>();
             map.put("id", booking.getId());
             map.put("productId", booking.getProductId());
@@ -57,18 +69,27 @@ public class BookingController {
             map.put("productImage", product != null ? product.getImageData() : null);
             map.put("category", product != null ? product.getCategory() : "");
             map.put("listingType", product != null ? product.getListingType() : "");
-            map.put("consumerName", (consumer != null && consumer.getProfile() != null) ? consumer.getProfile().getDisplayName() : "User #" + booking.getConsumerId());
-            map.put("consumerCompany", (consumer != null && consumer.getBusinessProfile() != null) ? consumer.getBusinessProfile().getCompanyName() : "");
+            map.put("consumerName",
+                    (consumer != null && consumer.getProfile() != null) ? consumer.getProfile().getDisplayName()
+                            : "User #" + booking.getConsumerId());
+            map.put("consumerCompany",
+                    (consumer != null && consumer.getBusinessProfile() != null)
+                            ? consumer.getBusinessProfile().getCompanyName()
+                            : "");
             map.put("startDate", booking.getStartDate());
             map.put("endDate", booking.getEndDate());
             map.put("status", booking.getStatus());
-            map.put("message", booking.getMessage());
+
             map.put("consumerId", booking.getConsumerId());
             map.put("sellerId", booking.getSellerId());
             map.put("transactionType", booking.getTransactionType());
             map.put("meetupLocation", booking.getMeetupLocation());
             map.put("deliveryAddress", booking.getDeliveryAddress());
-            map.put("createdAt", booking.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a")));
+            map.put("confirmedDate", booking.getConfirmedDate());
+            map.put("confirmedTime", booking.getConfirmedTime());
+            map.put("confirmedLocation", booking.getConfirmedLocation());
+            map.put("createdAt",
+                    booking.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a")));
             return map;
         }).collect(Collectors.toList());
     }
@@ -78,7 +99,7 @@ public class BookingController {
         return bookingRepository.findByConsumerIdOrderByCreatedAtDesc(consumerId).stream().map(booking -> {
             Product product = productRepository.findById(booking.getProductId()).orElse(null);
             User seller = userRepository.findById(booking.getSellerId()).orElse(null);
-            
+
             Map<String, Object> map = new java.util.HashMap<>();
             map.put("id", booking.getId());
             map.put("productId", booking.getProductId());
@@ -86,18 +107,26 @@ public class BookingController {
             map.put("productImage", product != null ? product.getImageData() : null);
             map.put("category", product != null ? product.getCategory() : "");
             map.put("listingType", product != null ? product.getListingType() : "");
-            map.put("sellerName", (seller != null && seller.getProfile() != null) ? seller.getProfile().getDisplayName() : "User #" + booking.getSellerId());
-            map.put("sellerCompany", (seller != null && seller.getBusinessProfile() != null) ? seller.getBusinessProfile().getCompanyName() : "");
+            map.put("sellerName", (seller != null && seller.getProfile() != null) ? seller.getProfile().getDisplayName()
+                    : "User #" + booking.getSellerId());
+            map.put("sellerCompany",
+                    (seller != null && seller.getBusinessProfile() != null)
+                            ? seller.getBusinessProfile().getCompanyName()
+                            : "");
             map.put("startDate", booking.getStartDate());
             map.put("endDate", booking.getEndDate());
             map.put("status", booking.getStatus());
-            map.put("message", booking.getMessage());
+
             map.put("consumerId", booking.getConsumerId());
             map.put("sellerId", booking.getSellerId());
             map.put("transactionType", booking.getTransactionType());
             map.put("meetupLocation", booking.getMeetupLocation());
             map.put("deliveryAddress", booking.getDeliveryAddress());
-            map.put("createdAt", booking.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a")));
+            map.put("confirmedDate", booking.getConfirmedDate());
+            map.put("confirmedTime", booking.getConfirmedTime());
+            map.put("confirmedLocation", booking.getConfirmedLocation());
+            map.put("createdAt",
+                    booking.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a")));
             return map;
         }).collect(Collectors.toList());
     }
@@ -105,8 +134,36 @@ public class BookingController {
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
         return bookingRepository.findById(id).map(booking -> {
-            booking.setStatus(body.get("status"));
+            String newStatus = body.get("status");
+            booking.setStatus(newStatus);
+
+            // Handle confirmed details if status is ACCEPTED
+            if ("ACCEPTED".equalsIgnoreCase(newStatus)) {
+                if (body.containsKey("confirmedDate")) {
+                    booking.setConfirmedDate(java.time.LocalDate.parse(body.get("confirmedDate")));
+                }
+                if (body.containsKey("confirmedTime")) {
+                    booking.setConfirmedTime(body.get("confirmedTime"));
+                }
+                if (body.containsKey("confirmedLocation")) {
+                    booking.setConfirmedLocation(body.get("confirmedLocation"));
+                }
+            }
+
             bookingRepository.save(booking);
+
+            // Update associated product status
+            productRepository.findById(booking.getProductId()).ifPresent(product -> {
+                if ("ACCEPTED".equalsIgnoreCase(newStatus)) {
+                    product.setStatus("Booked");
+                } else if ("COMPLETED".equalsIgnoreCase(newStatus)) {
+                    product.setStatus("Sold");
+                } else if ("REJECTED".equalsIgnoreCase(newStatus) || "CANCELLED".equalsIgnoreCase(newStatus)) {
+                    product.setStatus("Available");
+                }
+                productRepository.save(product);
+            });
+
             return ResponseEntity.ok("Status updated");
         }).orElse(ResponseEntity.notFound().build());
     }

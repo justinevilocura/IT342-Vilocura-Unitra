@@ -27,8 +27,7 @@ public class Booking {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(columnDefinition = "TEXT")
-    private String message;
+
 
     @Column(name = "transaction_type")
     private String transactionType; // MEETUP or DELIVERY
@@ -40,6 +39,15 @@ public class Booking {
     private String deliveryAddress;
 
     private String status = "PENDING"; // PENDING, ACCEPTED, REJECTED, COMPLETED, CANCELLED
+
+    @Column(name = "confirmed_date")
+    private LocalDate confirmedDate;
+
+    @Column(name = "confirmed_time")
+    private String confirmedTime;
+
+    @Column(name = "confirmed_location")
+    private String confirmedLocation;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -57,8 +65,7 @@ public class Booking {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+
     public String getTransactionType() { return transactionType; }
     public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
     public String getMeetupLocation() { return meetupLocation; }
@@ -67,6 +74,14 @@ public class Booking {
     public void setDeliveryAddress(String deliveryAddress) { this.deliveryAddress = deliveryAddress; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public LocalDate getConfirmedDate() { return confirmedDate; }
+    public void setConfirmedDate(LocalDate confirmedDate) { this.confirmedDate = confirmedDate; }
+    public String getConfirmedTime() { return confirmedTime; }
+    public void setConfirmedTime(String confirmedTime) { this.confirmedTime = confirmedTime; }
+    public String getConfirmedLocation() { return confirmedLocation; }
+    public void setConfirmedLocation(String confirmedLocation) { this.confirmedLocation = confirmedLocation; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
