@@ -271,7 +271,10 @@ const MarketplacePage = () => {
 
                 <div className="item-price">
                   {item.listingType === 'For Sale' ? (
-                    <>Price: ₱{item.price}</>
+                    <div className="swap-details">
+                      <span className="swap-label">Price:</span>
+                      <span className="swap-requirement-text">₱{item.price}</span>
+                    </div>
                   ) : (
                     <div className="swap-details">
                       <span className="swap-label">
@@ -380,10 +383,15 @@ const MarketplacePage = () => {
                    'Budget'}
                 </h3>
                 <div className="details-price-value">
-                  {selectedItem.listingType === 'For Sale' ? `₱${selectedItem.price}` : 
-                   selectedItem.description && selectedItem.description.includes(':') 
-                    ? selectedItem.description.substring(selectedItem.description.indexOf(':') + 1, selectedItem.description.indexOf(']')).trim()
-                    : selectedItem.price}
+                  {selectedItem.listingType === 'For Sale' ? (
+                    <span className="swap-requirement-text">₱{selectedItem.price}</span>
+                  ) : (
+                    <span className="swap-requirement-text">
+                      {selectedItem.description && selectedItem.description.includes(':') 
+                        ? selectedItem.description.substring(selectedItem.description.indexOf(':') + 1, selectedItem.description.indexOf(']')).trim()
+                        : selectedItem.price}
+                    </span>
+                  )}
                 </div>
               </div>
               </div>

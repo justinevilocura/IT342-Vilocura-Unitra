@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  Users, 
-  Calendar, 
-  CheckCircle2, 
-  Clock, 
-  Package, 
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Users,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Package,
   TrendingUp,
   ArrowRight,
   Plus
@@ -17,14 +17,14 @@ import './Dashboard.css';
 const Dashboard = () => {
   const userId = localStorage.getItem('userId');
   const roleId = parseInt(localStorage.getItem('roleId'));
-  
+
   const [stats, setStats] = useState({
     totalBookings: 0,
     activeListings: 0,
     pendingRequests: 0,
     completedTransactions: 0
   });
-  
+
   const [recentBookings, setRecentBookings] = useState([]);
   const [myListings, setMyListings] = useState([]);
   const [marketplaceUpdates, setMarketplaceUpdates] = useState([]);
@@ -52,7 +52,7 @@ const Dashboard = () => {
 
         // 1. My Listings
         const userListings = allProducts.filter(p => parseInt(p.userId) === parseInt(userId));
-        setMyListings(userListings.slice(0, 3));
+        setMyListings(userListings);
 
         // 2. Recent Marketplace Updates
         const recentUpdates = [...allProducts].sort((a, b) => b.id - a.id).slice(0, 4);
@@ -65,12 +65,12 @@ const Dashboard = () => {
         setRecentBookings(combinedBookings);
 
         // 4. Statistics
-        const pending = receivedBookings.filter(b => b.status === 'PENDING').length + 
-                        sentRequests.filter(b => b.status === 'PENDING').length;
-        
-        const completed = receivedBookings.filter(b => b.status === 'COMPLETED').length + 
-                          sentRequests.filter(b => b.status === 'COMPLETED').length;
-        
+        const pending = receivedBookings.filter(b => b.status === 'PENDING').length +
+          sentRequests.filter(b => b.status === 'PENDING').length;
+
+        const completed = receivedBookings.filter(b => b.status === 'COMPLETED').length +
+          sentRequests.filter(b => b.status === 'COMPLETED').length;
+
         setStats({
           totalBookings: receivedBookings.length + sentRequests.length,
           activeListings: userListings.length,
@@ -145,7 +145,7 @@ const Dashboard = () => {
                     </div>
                     <Link to="/marketplace" className="view-all-link"><ArrowRight size={18} /></Link>
                   </div>
-                  <div className="card-content-list">
+                  <div className="card-content-list scrollable-list">
                     {myListings.length === 0 ? (
                       <div className="empty-state">No listings yet</div>
                     ) : (
@@ -155,7 +155,7 @@ const Dashboard = () => {
                             <span className="item-name">{item.title}</span>
                             <span className="item-category">{item.category}</span>
                           </div>
-                          <span className="item-price">₱{item.price}</span>
+                          <span className="item-price">{item.listingType}</span>
                         </div>
                       ))
                     )}
