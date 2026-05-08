@@ -5,13 +5,13 @@
   --secondary-bg: #141414;
   --surface-bg: rgba(255, 255, 255, 0.03);
   --surface-border: rgba(255, 255, 255, 0.08);
-  
+
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
-  
+
   --accent-primary: #ffffff;
   --accent-glow: rgba(255, 255, 255, 0.15);
-  
+
   --brand-gradient: linear-gradient(135deg, #FF6B6B, #556270);
   --mesh-1: #4F46E5;
   --mesh-2: #EC4899;
@@ -24,7 +24,7 @@
 
   --font-display: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
-  
+
   --transition-fast: 0.15s ease;
   --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -66,7 +66,12 @@ button {
   background: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
@@ -86,14 +91,32 @@ h2 {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulseGlow {
-  0% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
-  100% { opacity: 0.5; transform: scale(1); }
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
 }
 
 /* Global Button Styles */
@@ -123,7 +146,7 @@ h2 {
 }
 
 .btn-outline {
-  background-color: rgba(255,255,255,0.03);
+  background-color: rgba(255, 255, 255, 0.03);
   color: var(--text-primary);
   padding: 12px 28px;
   border-radius: var(--radius-pill);
@@ -139,8 +162,8 @@ h2 {
 }
 
 .btn-outline:hover {
-  background-color: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
@@ -153,20 +176,20 @@ h2 {
   font-size: 1rem;
   font-family: var(--font-body);
   margin-top: 8px;
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0, 0, 0, 0.2);
   color: var(--text-primary);
   outline: none;
   transition: all var(--transition-fast);
 }
 
 .input-field::placeholder {
-  color: rgba(255,255,255,0.3);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .input-field:focus {
-  border-color: rgba(255,255,255,0.4);
-  background-color: rgba(255,255,255,0.05);
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.05);
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
 .form-label {

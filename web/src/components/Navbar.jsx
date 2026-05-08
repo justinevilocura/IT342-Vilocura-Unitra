@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { User, LogOut } from 'lucide-react';
 import './Navbar.css';
@@ -7,13 +8,20 @@ const Navbar = () => {
   const roleId = localStorage.getItem('roleId');
   const userId = localStorage.getItem('userId');
 
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
   const handleLogout = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const confirmLogout = () => {
     localStorage.clear();
     window.location.href = '/login';
   };
 
   return (
-    <nav className="navbar">
+    <>
+      <nav className="navbar">
       <div className="navbar-container">
         <Link to={userId ? "/dashboard" : "/"} className="navbar-logo">
           Unitra
@@ -56,6 +64,25 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
+
+    {/* Logout Confirmation Modal */}
+    {isLogoutModalOpen && (
+      <div className="modal-overlay centered-overlay" style={{ zIndex: 10001 }} onClick={() => setIsLogoutModalOpen(false)}>
+        <div className="modal-content logout-popup glass-panel" onClick={e => e.stopPropagation()}>
+          <div className="logout-icon-header">
+            <LogOut size={32} />
+          </div>
+          <h2 className="logout-title">LOGOUT</h2>
+          <p className="logout-text">Are you sure you want to logout?</p>
+          
+          <div className="logout-actions-vertical">
+            <button className="btn-logout-confirm" onClick={confirmLogout}>SIGN OUT</button>
+            <button className="btn-logout-cancel" onClick={() => setIsLogoutModalOpen(false)}>CANCEL</button>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 };
 
