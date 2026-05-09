@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegistrationPage from './pages/RegistrationPage';
-import Dashboard from './pages/Dashboard';
-import MarketplacePage from './pages/MarketplacePage';
-import PendingPage from './pages/PendingPage';
-import AdminPendingRequests from './pages/AdminPendingRequests';
-import CommunityPage from './pages/CommunityPage';
-import ProfilePage from './pages/ProfilePage';
-import BookingsPage from './pages/BookingsPage';
-import Navbar from './components/Navbar';
+import LandingPage from './features/landing/LandingPage';
+import LoginPage from './features/auth/LoginPage';
+import RegistrationPage from './features/auth/RegistrationPage';
+import Dashboard from './features/dashboard/DashboardPage';
+import MarketplacePage from './features/marketplace/MarketplacePage';
+import PendingPage from './features/auth/PendingPage';
+import AdminPendingRequests from './features/admin/AdminPendingRequests';
+import CommunityPage from './features/community/CommunityPage';
+import ProfilePage from './features/profile/ProfilePage';
+import BookingsPage from './features/bookings/BookingsPage';
+import Navbar from './features/common/components/Navbar';
 
 function App() {
   return (

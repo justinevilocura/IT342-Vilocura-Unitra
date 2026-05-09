@@ -1,7 +1,7 @@
 package edu.cit.vilocura.unitra.config;
 
-import edu.cit.vilocura.unitra.entity.User;
-import edu.cit.vilocura.unitra.repository.UserRepository;
+import edu.cit.vilocura.unitra.features.auth.User;
+import edu.cit.vilocura.unitra.features.auth.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,3 +34,4 @@ public class AdminSeeder {
         };
     }
 }
+
