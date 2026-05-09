@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Sparkles, UploadCloud } from 'lucide-react';
 import './AuthLayout.css';
 import './RegistrationPage.css';
 
@@ -14,6 +14,13 @@ const RegistrationPage = () => {
   });
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,6 +28,25 @@ const RegistrationPage = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    
+    // Strict regex check for standard valid emails (prevents "user@.com" etc.)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setStatusMsg({ type: 'error', text: 'Please enter a valid email address (e.g. yourname@domain.com).' });
+      return;
+    }
+
+    // Only enforce @cit.edu for Entrepreneurs (SME)
+    if (role === 'SME' && !formData.email.endsWith('@cit.edu')) {
+      setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email to register as an Entrepreneur.' });
+      return;
+    }
+
+    if (role === 'SME' && !file) {
+      setStatusMsg({ type: 'error', text: 'Entrepreneurs must upload a valid School ID for verification.' });
+      return;
+    }
+
     setIsLoading(true);
     setStatusMsg({ type: '', text: '' });
 
@@ -42,8 +68,8 @@ const RegistrationPage = () => {
 
       if (response.ok) {
         setStatusMsg({ type: 'success', text: responseText });
-        // Optionally navigate to login after a short delay
-        setTimeout(() => navigate('/login'), 2000);
+        localStorage.setItem('userRole', role); // Save the chosen role to local storage so the dashboard knows!
+        setTimeout(() => navigate('/login', { state: { registered: true } }), 2000);
       } else {
         setStatusMsg({ type: 'error', text: responseText || 'Registration failed' });
       }
@@ -55,114 +81,120 @@ const RegistrationPage = () => {
   };
 
   return (
-    <div className="auth-layout">
-      {/* Left Pane */}
-      <div className="auth-left">
-        <div className="auth-brand">
-        </div>
-        <div className="auth-left-content">
-          <h1>Join the Unitra Network</h1>
+    <div className="login-page-new">
+      {/* Left Side */}
+      <div className="login-left">
+        <div className="welcome-content">
+          <h1>
+            Unite. Share.<br />
+            <span className="text-gradient">Grow Together.</span>
+          </h1>
           <p>
-            Create your account and start collaborating with SMEs to share resources and grow together.
+            Join the campus network where student entrepreneurs share resources, knowledge, and opportunities to accelerate growth through collaboration.
           </p>
         </div>
       </div>
 
-      {/* Right Pane */}
-      <div className="auth-right">
-        <div className="auth-right-container">
+      {/* Right Side */}
+      <div className="login-right">
+        <div className="login-form-container reg-scroll">
           <Link to="/" className="back-link">
             <ArrowLeft size={16} /> Back to home
           </Link>
           
-          <div className="auth-form-container" style={{ margin: 'auto 0' }}>
+          <div className="form-header">
             <h2>Create Account</h2>
-            <p className="auth-subtitle">Start your free trial — no credit card required.</p>
+            <p>Start your journey in the campus marketplace today.</p>
+          </div>
 
-            {statusMsg.text && (
-              <div className={`status-message ${statusMsg.type}`}>
-                {statusMsg.text}
+          {statusMsg.text && (
+            <div className={`status-message ${statusMsg.type}`}>
+              {statusMsg.text}
+            </div>
+          )}
+
+          <form className="login-form" onSubmit={handleRegister}>
+            <div className="form-group">
+              <label>Full Name</label>
+              <input 
+                type="text" 
+                name="name"
+                placeholder="John Doe" 
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{role === 'SME' ? 'Institutional Email' : 'Email Address'}</label>
+              <input 
+                type="email" 
+                name="email"
+                placeholder={role === 'SME' ? 'johndoe@cit.edu' : 'johndoe@gmail.com'}
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Password</label>
+              <input 
+                type="password" 
+                name="password"
+                placeholder="••••••••••" 
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="role-selector-new">
+               <span className="role-label">I want to join as a...</span>
+               <div className="role-btns">
+                 <button 
+                   type="button" 
+                   className={role === 'SME' ? 'active' : ''}
+                   onClick={() => setRole('SME')}
+                 >
+                   Entrepreneur
+                 </button>
+                 <button 
+                   type="button" 
+                   className={role === 'CONSUMER' ? 'active' : ''}
+                   onClick={() => setRole('CONSUMER')}
+                 >
+                   Consumer
+                 </button>
+               </div>
+            </div>
+
+            {role === 'SME' && (
+              <div className="upload-section-new">
+                <label>Verification (School ID)</label>
+                <div className="upload-box" onClick={() => document.getElementById('file-up').click()}>
+                   <UploadCloud size={20} />
+                   <span>{file ? file.name : "Click to upload your ID"}</span>
+                   <input 
+                     type="file" 
+                     id="file-up"
+                     style={{ display: 'none' }} 
+                     onChange={handleFileChange}
+                     accept="image/*,.pdf"
+                   />
+                </div>
               </div>
             )}
 
-            <form className="auth-form" onSubmit={handleRegister}>
-              <label className="form-label">
-                Full Name
-                <input 
-                  type="text" 
-                  name="name"
-                  className="input-field" 
-                  placeholder="John Doe" 
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
+            <button type="submit" className="btn-login-new" disabled={isLoading}>
+              {isLoading ? 'Creating Account...' : 'Get Started'}
+            </button>
+          </form>
 
-              <label className="form-label">
-                Institutional Email
-                <input 
-                  type="email" 
-                  name="email"
-                  className="input-field" 
-                  placeholder="johndoe@cit.edu" 
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <label className="form-label">
-                Password
-                <input 
-                  type="password" 
-                  name="password"
-                  className="input-field" 
-                  placeholder="••••••••••" 
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
-              <div className="role-selector">
-                <span className="role-label">I want to be a</span>
-                <div className="role-buttons">
-                  <button 
-                    type="button" 
-                    className={`role-btn ${role === 'SME' ? 'active' : ''}`}
-                    onClick={() => setRole('SME')}
-                  >
-                    Student<br/>Entrepreneur
-                  </button>
-                  <button 
-                    type="button" 
-                    className={`role-btn ${role === 'CONSUMER' ? 'active' : ''}`}
-                    onClick={() => setRole('CONSUMER')}
-                  >
-                    Consumer
-                  </button>
-                </div>
-              </div>
-
-              {role === 'SME' && (
-                <div className="upload-section">
-                  <span className="form-label">Upload School ID for verification(b2b)</span>
-                  <div className="upload-icon-container">
-                    <Download size={20} className="upload-icon" />
-                  </div>
-                </div>
-              )}
-
-              <button type="submit" className="btn-accent" style={{ marginTop: '32px' }} disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create Account'}
-              </button>
-            </form>
-
-            <p className="auth-footer">
-              Already have an account? <Link to="/login">Login</Link>
-            </p>
-          </div>
+          <p className="form-footer">
+            Already have an account? <Link to="/login">Sign In</Link>
+          </p>
         </div>
       </div>
     </div>

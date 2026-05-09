@@ -1,0 +1,191 @@
+.admin-container {
+  padding: 120px 60px;
+  min-height: 100vh;
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Immersive Mesh Gradients from Dashboard */
+.mesh-gradient {
+  position: absolute;
+  width: 1000px;
+  height: 1000px;
+  filter: blur(120px);
+  opacity: 0.1;
+  border-radius: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mesh-1 {
+  background: var(--mesh-1);
+  top: -300px;
+  left: -200px;
+  animation: float 20s infinite alternate;
+}
+
+.mesh-2 {
+  background: var(--mesh-3);
+  bottom: -300px;
+  right: -200px;
+  animation: float 25s infinite alternate-reverse;
+}
+
+.admin-header {
+  max-width: 1400px;
+  margin: 0 auto 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-header h1 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.requests-table-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Card styled like Marketplace item-card */
+.request-card {
+  display: flex;
+  align-items: center;
+  background: var(--surface-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: var(--radius-lg);
+  padding: 30px 40px;
+  margin-bottom: 20px;
+  border: 1px solid var(--surface-border);
+  transition: all var(--transition-smooth);
+}
+
+.request-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.column-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.column-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.email-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color var(--transition-fast);
+}
+
+.email-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.download-icon {
+  cursor: pointer;
+  color: var(--text-primary);
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.download-icon:hover {
+  opacity: 1;
+}
+
+.actions-area {
+  display: flex;
+  gap: 16px;
+  flex: 1.5;
+  justify-content: flex-end;
+}
+
+/* Action buttons styled like Marketplace buttons */
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  transition: all var(--transition-smooth);
+  backdrop-filter: blur(10px);
+}
+
+.btn-action .icon {
+  display: flex;
+  align-items: center;
+}
+
+.btn-action.approve:hover {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-action.decline:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+}
+
+.loading, .no-requests {
+  padding: 120px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+@keyframes float {
+  from { transform: translate(0, 0); }
+  to { transform: translate(40px, 40px); }
+}
+
+@media (max-width: 1200px) {
+  .admin-container { padding: 100px 30px; }
+  .request-card { flex-wrap: wrap; gap: 24px; }
+  .column { flex: 1 1 200px; }
+  .actions-area { flex: 1 1 100%; justify-content: center; margin-top: 10px; }
+}

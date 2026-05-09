@@ -24,17 +24,38 @@ public class User {
     @Column(name = "password_hash")
     private String password;
 
+    @Column(name = "status", nullable = false)
+    private String status = "PENDING";
+
+    @Column(name = "email_verified", nullable = false, columnDefinition = "boolean default false")
+    private boolean emailVerified = false;
+
+    @Column(name = "verification_token")
+    private String verificationToken;
+
     @Transient
     private Role role;
 
     @Column(name = "role_id")
     private Long roleId;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Profile profile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BusinessProfile businessProfile;
+
     public enum Role {
         SME, CONSUMER, ADMIN
     }
 
     // Getters and Setters
+
+    public Profile getProfile() { return profile; }
+    public void setProfile(Profile profile) { this.profile = profile; }
+
+    public BusinessProfile getBusinessProfile() { return businessProfile; }
+    public void setBusinessProfile(BusinessProfile businessProfile) { this.businessProfile = businessProfile; }
 
     public Long getRoleId() {
         return roleId;
@@ -55,6 +76,30 @@ public class User {
     }
 
     // Other getters and setters
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Long getId() {
         return id;
     }
@@ -85,5 +130,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void setRole(String roleStr) {
+        if (roleStr == null) return;
+        try {
+            this.role = Role.valueOf(roleStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            // Log or handle invalid role
+        }
     }
 }

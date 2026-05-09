@@ -1,0 +1,261 @@
+.dashboard-layout {
+  min-height: 100vh;
+  position: relative;
+  background: #000;
+  color: #fff;
+}
+
+.dashboard-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 120px 40px 60px;
+}
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.dashboard-card {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.header-title h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.header-title p {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.view-all-link {
+  margin-left: auto;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.view-all-link:hover {
+  color: #fff;
+  transform: translateX(4px);
+}
+
+/* Content Lists */
+.card-content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.item-status, .item-category {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.item-date, .item-price {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #888;
+}
+
+.status-pending { color: #fbbf24; }
+.status-accepted { color: #22c55e; }
+.status-completed { color: #3b82f6; }
+.status-cancelled { color: #9ca3af; }
+
+/* Update Items (Marketplace Updates) */
+.update-item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.update-bar {
+  width: 4px;
+  height: 40px;
+  background: #333;
+  border-radius: 2px;
+}
+
+.update-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.update-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.update-meta {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Activity Summary */
+.activity-summary {
+  padding: 40px;
+}
+
+.section-header {
+  margin-bottom: 32px;
+}
+
+.section-header h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.summary-box {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 32px;
+  border-radius: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.summary-box:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-4px);
+}
+
+.summary-value {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #888;
+}
+
+/* Empty State */
+.empty-state {
+  color: #555;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px;
+  gap: 16px;
+  color: #666;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Consumer View Layout Adjustments */
+.consumer-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.consumer-summary {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+/* Scrollable List styling for cards */
+.scrollable-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Custom scrollbar for dashboard cards */
+.scrollable-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollable-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
