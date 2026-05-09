@@ -670,12 +670,12 @@ const MarketplacePage = () => {
 
               <div className="form-group">
                 <label>Title</label>
-                <input type="text" className="form-input" placeholder="Enter item title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+                <input type="text" className="form-input" placeholder="Enter item title" maxLength="100" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
               </div>
 
               <div className="form-group">
                 <label>Description</label>
-                <textarea className="form-input" placeholder="Describe your item in details..." rows="3" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}></textarea>
+                <textarea className="form-input" placeholder="Describe your item in details..." rows="3" maxLength="1000" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}></textarea>
               </div>
 
               <div className="form-group">
@@ -747,8 +747,23 @@ const MarketplacePage = () => {
                     return;
                   }
 
-                  if (formData.listingType === 'For Sale' && (isNaN(formData.price) || parseFloat(formData.price) < 0)) {
-                    setModalError('Please enter a valid numeric price.');
+                  if (formData.title.trim().length < 3) {
+                    setModalError('Title must be at least 3 characters long.');
+                    return;
+                  }
+
+                  if (formData.description.trim().length < 20) {
+                    setModalError('Description must be at least 20 characters long.');
+                    return;
+                  }
+
+                  if (formData.location.trim().length < 3) {
+                    setModalError('Please provide a valid location.');
+                    return;
+                  }
+
+                  if (formData.listingType === 'For Sale' && (isNaN(formData.price) || parseFloat(formData.price) <= 0)) {
+                    setModalError('For Sale items must have a valid price strictly greater than 0.');
                     return;
                   }
 
