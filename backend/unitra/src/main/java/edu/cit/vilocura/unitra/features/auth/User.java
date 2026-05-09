@@ -42,6 +42,9 @@ public class User {
     @Column(name = "role_id")
     private Long roleId;
 
+    @Column(name = "school_id_url", columnDefinition = "TEXT")
+    private String schoolIdUrl;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Profile profile;
 
@@ -66,6 +69,14 @@ public class User {
 
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
+    }
+
+    public String getSchoolIdUrl() {
+        return schoolIdUrl;
+    }
+
+    public void setSchoolIdUrl(String schoolIdUrl) {
+        this.schoolIdUrl = schoolIdUrl;
     }
 
     // Getters and Setters

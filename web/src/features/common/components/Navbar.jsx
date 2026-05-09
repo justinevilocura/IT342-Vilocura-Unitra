@@ -29,10 +29,14 @@ const Navbar = () => {
         <div className="navbar-links">
           {userId ? (
             <>
-              <Link to="/marketplace" className={`nav-link ${location.pathname === '/marketplace' ? 'active' : ''}`}>Marketplace</Link>
-              <Link to="/dashboard" className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</Link>
-              <Link to="/community" className={`nav-link ${location.pathname === '/community' ? 'active' : ''}`}>Community</Link>
-              <Link to="/bookings" className={`nav-link ${location.pathname === '/bookings' ? 'active' : ''}`}>Bookings</Link>
+              {roleId !== '3' && (
+                <>
+                  <Link to="/marketplace" className={`nav-link ${location.pathname === '/marketplace' ? 'active' : ''}`}>Marketplace</Link>
+                  <Link to="/dashboard" className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</Link>
+                  <Link to="/community" className={`nav-link ${location.pathname === '/community' ? 'active' : ''}`}>Community</Link>
+                  <Link to="/bookings" className={`nav-link ${location.pathname === '/bookings' ? 'active' : ''}`}>Bookings</Link>
+                </>
+              )}
               {roleId === '3' && (
                 <Link to="/admin/pending" className={`nav-link ${location.pathname === '/admin/pending' ? 'active' : ''}`}>Pending Request</Link>
               )}
@@ -48,9 +52,11 @@ const Navbar = () => {
         <div className="navbar-auth">
           {userId ? (
             <div className="navbar-user-actions">
-              <Link to="/profile" className="icon-btn">
-                <User size={20} />
-              </Link>
+              {roleId !== '3' && (
+                <Link to="/profile" className="icon-btn">
+                  <User size={20} />
+                </Link>
+              )}
               <button onClick={handleLogout} className="icon-btn logout-btn" title="Logout">
                 <LogOut size={20} />
               </button>

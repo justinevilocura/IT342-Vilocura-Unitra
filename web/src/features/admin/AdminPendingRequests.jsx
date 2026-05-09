@@ -6,6 +6,7 @@ import './AdminPendingRequests.css';
 const AdminPendingRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,7 +80,12 @@ const AdminPendingRequests = () => {
 
               <div className="column" style={{ alignItems: 'center' }}>
                 <span className="column-label">SCHOOL ID(IMG)</span>
-                <div className="download-icon">
+                <div 
+                  className="download-icon" 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setSelectedImage(req.schoolIdUrl || 'https://via.placeholder.com/400x250/333333/ffffff?text=No+ID+Uploaded')}
+                  title="View School ID"
+                >
                   <Download size={20} />
                 </div>
               </div>
@@ -102,6 +108,32 @@ const AdminPendingRequests = () => {
           ))
         )}
       </div>
+
+      {selectedImage && (
+        <div 
+          className="modal-overlay centered-overlay" 
+          onClick={() => setSelectedImage(null)} 
+          style={{ zIndex: 10001, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.8)' }}
+        >
+          <div 
+            className="modal-content" 
+            onClick={e => e.stopPropagation()} 
+            style={{ position: 'relative', padding: '12px', background: '#111', borderRadius: '12px', maxWidth: '90%', maxHeight: '90%' }}
+          >
+            <button 
+              onClick={() => setSelectedImage(null)} 
+              style={{ position: 'absolute', top: '-15px', right: '-15px', background: '#ff4b4b', color: 'white', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
+            >
+              <X size={16} strokeWidth={3} />
+            </button>
+            <img 
+              src={selectedImage} 
+              alt="School ID" 
+              style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '8px', display: 'block' }} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

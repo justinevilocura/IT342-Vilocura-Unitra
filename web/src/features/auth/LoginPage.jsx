@@ -54,6 +54,9 @@ const LoginPage = () => {
         } else if (data.roleId === 1 && data.status === 'DECLINED') {
           setStatusMsg({ type: 'error', text: 'Your request has been declined.' });
           localStorage.clear(); // Clear the partial session
+        } else if (data.roleId === 3) {
+          localStorage.setItem('roleId', data.roleId);
+          setTimeout(() => navigate('/admin/pending'), 2000);
         } else {
           localStorage.setItem('roleId', data.roleId); // Ensure roleId is set for approved users
           setTimeout(() => navigate('/dashboard'), 2000);

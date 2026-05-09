@@ -21,7 +21,9 @@ const ProfilePage = () => {
   const [originalAvatar, setOriginalAvatar] = useState(null);
   const [isEditingAvatar, setIsEditingAvatar] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileError, setProfileError] = useState('');
   const [isEditingBusiness, setIsEditingBusiness] = useState(false);
+  const [businessError, setBusinessError] = useState('');
 
   // Role check - 1 for SME, 2 for Consumer (assumed), 3 for Admin
   const roleId = parseInt(localStorage.getItem('roleId')) || 2; // Defaulting to consumer if not set for safety
@@ -57,6 +59,47 @@ const ProfilePage = () => {
 
   const saveProfile = async (section) => {
     try {
+      if (section === 'profile') {
+        setProfileError('');
+        if (!formData.displayName || formData.displayName.trim().length < 2 || formData.displayName.trim().length > 30) {
+          setProfileError('Display Name must be between 2 and 30 characters.');
+          return;
+        }
+        if (formData.tagline && formData.tagline.length > 60) {
+          setProfileError('Tagline cannot exceed 60 characters.');
+          return;
+        }
+        if (formData.bio && formData.bio.length > 300) {
+          setProfileError('Personal Bio cannot exceed 300 characters.');
+          return;
+        }
+      }
+
+      if (section === 'business') {
+        setBusinessError('');
+        if (!formData.companyName || formData.companyName.trim().length < 2) {
+          setBusinessError('Company Name must be at least 2 characters long.');
+          return;
+        }
+        if (!formData.industry) {
+          setBusinessError('Please select an Industry.');
+          return;
+        }
+        if (!formData.businessDescription || formData.businessDescription.trim().length < 20) {
+          setBusinessError('Business Description must be at least 20 characters long.');
+          return;
+        }
+        if (/\d/.test(formData.city) || /\d/.test(formData.province)) {
+          setBusinessError('City and Province should only contain letters and spaces.');
+          return;
+        }
+        const phoneRegex = /^09\d{9}$/;
+        if (!phoneRegex.test(formData.contactPhone)) {
+          setBusinessError('Contact Phone must be a valid 11-digit number starting with 09 (e.g. 09123456789).');
+          return;
+        }
+      }
+
       const payload = {
         name: formData.displayName,
         tagline: formData.tagline,
@@ -95,8 +138,14 @@ const ProfilePage = () => {
     setFormData({ ...originalData });
     setAvatar(originalAvatar);
     if (section === 'avatar') setIsEditingAvatar(false);
-    if (section === 'profile') setIsEditingProfile(false);
-    if (section === 'business') setIsEditingBusiness(false);
+    if (section === 'profile') {
+      setIsEditingProfile(false);
+      setProfileError('');
+    }
+    if (section === 'business') {
+      setIsEditingBusiness(false);
+      setBusinessError('');
+    }
   };
 
   const handleAvatarChange = (e) => {
@@ -206,6 +255,11 @@ const ProfilePage = () => {
                     <p className="card-subtitle">Update your public display name, professional tagline, and personal biography.</p>
 
                     <form className="profile-form">
+                      {profileError && (
+                        <div style={{ backgroundColor: 'rgba(255, 68, 68, 0.1)', color: '#ff4444', padding: '12px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(255, 68, 68, 0.2)' }}>
+                          {profileError}
+                        </div>
+                      )}
                       <div className="form-group">
                         <label>Display Name</label>
                         <input
@@ -273,6 +327,11 @@ const ProfilePage = () => {
                   <p className="card-subtitle">Provide core information about your business.</p>
 
                   <form className="profile-form">
+                    {businessError && (
+                      <div style={{ backgroundColor: 'rgba(255, 68, 68, 0.1)', color: '#ff4444', padding: '12px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(255, 68, 68, 0.2)' }}>
+                        {businessError}
+                      </div>
+                    )}
                     <div className="form-row">
                       <div className="form-group half">
                         <label>Company Name</label>
@@ -287,14 +346,21 @@ const ProfilePage = () => {
                       </div>
                       <div className="form-group half">
                         <label>Industry</label>
-                        <input
-                          type="text"
+                        <select
                           className={`form-input ${!isEditingBusiness ? 'read-only' : ''}`}
-                          placeholder="Enter your Industry"
                           value={formData.industry || ''}
                           onChange={e => setFormData({ ...formData, industry: e.target.value })}
-                          readOnly={!isEditingBusiness}
-                        />
+                          disabled={!isEditingBusiness}
+                          style={!isEditingBusiness ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+                        >
+                          <option value="" disabled>Select your Industry</option>
+                          <option value="Food & Beverage">Food & Beverage</option>
+                          <option value="Digital Services">Digital Services</option>
+                          <option value="Apparel & Fashion">Apparel & Fashion</option>
+                          <option value="Tutoring & Academics">Tutoring & Academics</option>
+                          <option value="Arts & Crafts">Arts & Crafts</option>
+                          <option value="Other">Other</option>
+                        </select>
                       </div>
                     </div>
 

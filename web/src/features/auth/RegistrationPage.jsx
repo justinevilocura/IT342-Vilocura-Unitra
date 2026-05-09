@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, UploadCloud } from 'lucide-react';
+import { ArrowLeft, Sparkles, UploadCloud, Eye, EyeOff } from 'lucide-react';
 import './AuthLayout.css';
 import './RegistrationPage.css';
 
@@ -15,6 +15,7 @@ const RegistrationPage = () => {
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -42,6 +43,16 @@ const RegistrationPage = () => {
       return;
     }
 
+    // Strong password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setStatusMsg({ 
+        type: 'error', 
+        text: 'Password must be at least 8 characters long, and include an uppercase letter, a lowercase letter, a number, and a special character.' 
+      });
+      return;
+    }
+
     if (role === 'SME' && !file) {
       setStatusMsg({ type: 'error', text: 'Entrepreneurs must upload a valid School ID for verification.' });
       return;
@@ -51,6 +62,16 @@ const RegistrationPage = () => {
     setStatusMsg({ type: '', text: '' });
 
     try {
+      let schoolIdBase64 = null;
+      if (file) {
+        schoolIdBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+        });
+      }
+
       const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: {
@@ -60,7 +81,8 @@ const RegistrationPage = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: role
+          role: role,
+          schoolIdUrl: schoolIdBase64
         })
       });
 
@@ -140,14 +162,35 @@ const RegistrationPage = () => {
 
             <div className="form-group">
               <label>Password</label>
-              <input 
-                type="password" 
-                name="password"
-                placeholder="••••••••••" 
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  name="password"
+                  placeholder="••••••••••" 
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  style={{ width: '100%', paddingRight: '40px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ 
+                    position: 'absolute', 
+                    right: '12px', 
+                    background: 'transparent', 
+                    border: 'none', 
+                    color: '#a1a1aa', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 0
+                  }}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="role-selector-new">
