@@ -362,3 +362,32 @@
   border-radius: 12px;
   cursor: pointer;
 }
+
+/* Create Post Textarea */
+.create-post-textarea {
+  width: 100%;
+  min-height: 140px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  resize: vertical;
+  margin-bottom: 24px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.create-post-textarea:focus {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.create-post-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}

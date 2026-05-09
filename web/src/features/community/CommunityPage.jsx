@@ -106,7 +106,11 @@ const CommunityPage = () => {
   };
 
   const handlePostComment = async (postId, content) => {
-    if (!content.trim()) return;
+    if (!content || !content.trim()) return;
+    if (content.trim().length > 250) {
+      alert("Comments cannot exceed 250 characters.");
+      return;
+    }
     if (!userId) {
       alert("Please log in to post a comment.");
       return;
@@ -254,6 +258,7 @@ const CommunityPage = () => {
                       <textarea 
                         id={`inline-comment-${post.id}`}
                         placeholder="Write a comment..."
+                        maxLength="250"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -284,24 +289,36 @@ const CommunityPage = () => {
               <button className="close-modal-btn" onClick={() => setIsCreateModalOpen(false)}><X /></button>
             </div>
             <textarea
+              className="create-post-textarea"
               rows="4"
+              maxLength="500"
               placeholder="What's on your mind?"
               value={newPostData.content}
               onChange={(e) => setNewPostData({ content: e.target.value })}
+              style={{ marginBottom: '8px' }}
             ></textarea>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+              <span style={{ fontSize: '0.85rem', color: newPostData.content.length >= 500 ? '#ef4444' : '#888', fontWeight: 600 }}>
+                {newPostData.content.length} / 500
+              </span>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <button className="btn-secondary" onClick={() => setIsCreateModalOpen(false)}>Cancel</button>
-              <button className="create-post-btn" onClick={async () => {
-                if (!newPostData.content) return;
-                try {
-                  const response = await fetch('http://localhost:8080/api/posts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: parseInt(userId), content: newPostData.content })
-                  });
-                  if (response.ok) { fetchPosts(); setIsCreateModalOpen(false); setNewPostData({ content: '' }); }
-                } catch (error) { console.error(error); }
-              }}>Post</button>
+              <button 
+                className="create-post-btn" 
+                disabled={!newPostData.content.trim()} 
+                style={{ opacity: !newPostData.content.trim() ? 0.5 : 1, cursor: !newPostData.content.trim() ? 'not-allowed' : 'pointer' }}
+                onClick={async () => {
+                  if (!newPostData.content.trim()) return;
+                  try {
+                    const response = await fetch('http://localhost:8080/api/posts', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ userId: parseInt(userId), content: newPostData.content.trim() })
+                    });
+                    if (response.ok) { fetchPosts(); setIsCreateModalOpen(false); setNewPostData({ content: '' }); }
+                  } catch (error) { console.error(error); }
+                }}>Post</button>
             </div>
           </div>
         </div>
@@ -348,6 +365,7 @@ const CommunityPage = () => {
                   <textarea 
                     id="modal-comment-input-field"
                     placeholder="Write a comment..."
+                    maxLength="250"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
