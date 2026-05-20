@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/primary_bg"
     android:padding="24dp"
     tools:context=".LandingActivity">
 
@@ -17,7 +17,7 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:text="Campus Marketplace &amp; Community Hub"
-        android:textColor="@color/primary_black"
+        android:textColor="@color/text_primary"
         android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="Unite. Share.\nGrow Together."
-        android:textColor="@color/primary_black"
+        android:textColor="@color/text_primary"
         android:textSize="48sp"
         android:textStyle="bold"
         android:lineHeight="52sp"
@@ -64,11 +64,11 @@
 
     <Button
         android:id="@+id/btnLearnMore"
-        style="@style/Button.Outline"
+        style="@style/Button.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:text="Learn More"
+        android:text="Sign In"
         app:layout_constraintBottom_toBottomOf="@id/btnJoin"
         app:layout_constraintStart_toEndOf="@id/btnJoin"
         app:layout_constraintTop_toTopOf="@id/btnJoin" />

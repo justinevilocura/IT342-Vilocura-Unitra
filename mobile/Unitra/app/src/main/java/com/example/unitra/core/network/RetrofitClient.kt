@@ -1,4 +1,4 @@
-package com.example.unitra.api
+package com.example.unitra.core.network
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -16,13 +16,11 @@ object RetrofitClient {
         .addInterceptor(logging)
         .build()
 
-    val instance: AuthApi by lazy {
-        val retrofit = Retrofit.Builder()
+    val instance: Retrofit by lazy {
+        Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
-
-        retrofit.create(AuthApi::class.java)
     }
 }

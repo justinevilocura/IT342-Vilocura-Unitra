@@ -1,6 +1,9 @@
-package com.example.unitra
+package com.example.unitra.features.auth
+
+import com.example.unitra.core.network.RetrofitClient
 
 import android.content.Intent
+import com.example.unitra.R
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -11,8 +14,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.unitra.api.RetrofitClient
-import com.example.unitra.model.User
+
+
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputEditText
 import okhttp3.ResponseBody
@@ -93,7 +96,8 @@ class RegisterActivity : AppCompatActivity() {
 
         val user = User(name, email, password, role)
 
-        RetrofitClient.instance.register(user).enqueue(object : Callback<ResponseBody> {
+        val api = RetrofitClient.instance.create(AuthApi::class.java)
+        api.register(user).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 progressBar.visibility = View.GONE
                 btnRegister.isEnabled = true

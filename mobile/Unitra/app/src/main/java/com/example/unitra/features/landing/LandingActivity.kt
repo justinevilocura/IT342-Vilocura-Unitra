@@ -1,4 +1,8 @@
-package com.example.unitra
+package com.example.unitra.features.landing
+
+import com.example.unitra.features.auth.LoginActivity
+import com.example.unitra.features.auth.RegisterActivity
+import com.example.unitra.R
 
 import android.content.Intent
 import android.os.Bundle

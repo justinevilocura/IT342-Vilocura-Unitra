@@ -1,4 +1,4 @@
-package com.example.unitra.model
+package com.example.unitra.features.auth
 
 import com.google.gson.annotations.SerializedName
 
