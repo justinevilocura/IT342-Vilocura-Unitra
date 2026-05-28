@@ -133,8 +133,8 @@ const LandingPage = () => {
           </p>
         </div>
         <div className="about-visual">
-          <div className="glass-panel image-placeholder">
-            <span>img</span>
+          <div className="glass-panel image-container" style={{ overflow: 'hidden', padding: 0 }}>
+            <img src="/images/marketing.png" alt="Student Entrepreneurs collaborating" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
         </div>
       </section>

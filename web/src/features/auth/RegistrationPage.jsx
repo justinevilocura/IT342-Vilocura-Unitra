@@ -37,14 +37,14 @@ const RegistrationPage = () => {
       return;
     }
 
-    // Only enforce @cit.edu for Entrepreneurs (SME)
-    if (role === 'SME' && !formData.email.endsWith('@cit.edu')) {
-      setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email to register as an Entrepreneur.' });
-      return;
-    }
+    // Temporarily allowing any email for SME registration for presentation testing
+    // if (role === 'SME' && !formData.email.endsWith('@cit.edu')) {
+    //   setStatusMsg({ type: 'error', text: 'Please use your valid @cit.edu institutional email to register as an Entrepreneur.' });
+    //   return;
+    // }
 
     // Strong password validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#.])[A-Za-z\d@$!%*?&#.]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
       setStatusMsg({ 
         type: 'error', 
@@ -149,11 +149,11 @@ const RegistrationPage = () => {
             </div>
 
             <div className="form-group">
-              <label>{role === 'SME' ? 'Institutional Email' : 'Email Address'}</label>
+              <label>Email Address</label>
               <input 
                 type="email" 
                 name="email"
-                placeholder={role === 'SME' ? 'johndoe@cit.edu' : 'johndoe@gmail.com'}
+                placeholder="johndoe@gmail.com"
                 value={formData.email}
                 onChange={handleChange}
                 required

@@ -2,6 +2,7 @@ package edu.cit.vilocura.unitra.features.marketplace;
 
 import edu.cit.vilocura.unitra.features.marketplace.Product;
 import edu.cit.vilocura.unitra.features.marketplace.ProductRepository;
+import edu.cit.vilocura.unitra.features.bookings.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,9 @@ public class ProductController {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
 
     @GetMapping
     public List<Product> getAllProducts() {
@@ -45,6 +49,21 @@ public class ProductController {
         return productRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+        if (!productRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        try {
+            bookingRepository.deleteByProductId(id);
+            productRepository.deleteById(id);
+            return ResponseEntity.ok().body("Product deleted successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error deleting product: " + e.getMessage());
+        }
     }
 }
 

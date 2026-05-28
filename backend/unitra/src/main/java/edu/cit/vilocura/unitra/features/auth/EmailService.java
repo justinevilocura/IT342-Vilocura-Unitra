@@ -15,6 +15,7 @@ public class EmailService {
         String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
 
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("wctounitra@gmail.com");
         message.setTo(toEmail);
         message.setSubject("Verify your Unitra Account");
         message.setText("Welcome to Unitra!\n\n" +

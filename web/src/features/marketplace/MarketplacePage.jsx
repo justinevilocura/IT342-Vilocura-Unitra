@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogOut, MapPin, Calendar, CheckCircle2, ChevronDown, Plus, X, Upload, ChevronLeft, ChevronRight, Star, AlertTriangle } from 'lucide-react';
+import { Search, User, LogOut, MapPin, Calendar, CheckCircle2, ChevronDown, Plus, X, Upload, ChevronLeft, ChevronRight, Star, AlertTriangle, MoreHorizontal, Trash2 } from 'lucide-react';
 import './MarketplacePage.css';
 
 const MarketplacePage = () => {
@@ -43,6 +43,26 @@ const MarketplacePage = () => {
     setEndDate(null);
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm("Are you sure you want to delete this listing?")) {
+      try {
+        const res = await fetch(`http://localhost:8080/api/products/${productId}`, {
+          method: 'DELETE'
+        });
+        if (res.ok) {
+          setItems(items.filter(item => item.id !== productId));
+          setActiveDropdown(null);
+        } else {
+          alert('Failed to delete product.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network error.');
+      }
+    }
+  };
   const [selectedItem, setSelectedItem] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -260,9 +280,67 @@ const MarketplacePage = () => {
                   <span className={`tag tag-${(item.listingType || '').toLowerCase().replace(' ', '-')}`}>
                     {item.listingType}
                   </span>
-                  <span className={`status-tag status-${(item.status || 'Available').toLowerCase()}`}>
-                    {item.status || 'Available'}
-                  </span>
+                  
+                  <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                    <span className={`status-tag status-${(item.status || 'Available').toLowerCase()}`}>
+                      {item.status || 'Available'}
+                    </span>
+                    
+                    {parseInt(item.userId) === parseInt(userId) && (
+                      <div className="dropdown-container" style={{position: 'relative'}}>
+                        <button 
+                          className="btn-icon-only" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(activeDropdown === item.id ? null : item.id);
+                          }}
+                          style={{background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px'}}
+                        >
+                          <MoreHorizontal size={20} />
+                        </button>
+                        
+                        {activeDropdown === item.id && (
+                          <div className="dropdown-menu" style={{
+                            position: 'absolute', 
+                            right: 0, 
+                            top: '100%', 
+                            background: '#1a1a1a', 
+                            border: '1px solid #333', 
+                            borderRadius: '8px', 
+                            padding: '8px', 
+                            zIndex: 10,
+                            minWidth: '120px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                          }}>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteProduct(item.id);
+                              }}
+                              style={{
+                                width: '100%', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '8px', 
+                                background: 'transparent', 
+                                border: 'none', 
+                                color: '#ef4444', 
+                                padding: '8px', 
+                                cursor: 'pointer',
+                                borderRadius: '4px',
+                                textAlign: 'left',
+                                fontSize: '14px'
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = '#333'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                              <Trash2 size={16} /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <h3 className="item-title">{item.title}</h3>
